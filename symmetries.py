@@ -127,31 +127,31 @@ fh.close()
 # ######################################################################################################################
 
 # #################### Generate the phase 2 table for the conjugation of the URtoDB coordinate by a symmetrie ##########
-fname = "conj_ud_edges"
-if not path.isfile(fname):
-    print("creating " + fname + " table...")
-    ud_edges_conj = ar.array('H', [0] * (N_UD_EDGES * N_SYM_D4h))
-    for t in range(N_UD_EDGES):
-        if (t + 1) % 400 == 0:
-            print('.', end='', flush=True)
-        if (t + 1) % 32000 == 0:
-            print('')
-        cc = cb.CubieCube()
-        cc.set_ud_edges(t)
-        for s in range(N_SYM_D4h):
-            ss = cb.CubieCube(symCube[s].cp, symCube[s].co, symCube[s].ep, symCube[s].eo)  # copy cube
-            ss.edge_multiply(cc)  # s*t
-            ss.edge_multiply(symCube[inv_idx[s]])  # s*t*s^-1
-            ud_edges_conj[N_SYM_D4h * t + s] = ss.get_ud_edges()
-    print('')
-    fh = open(fname, "wb")
-    ud_edges_conj.tofile(fh)
-else:
-    print("loading " + fname + " table...")
-    fh = open(fname, "rb")
-    ud_edges_conj = ar.array('H')
-    ud_edges_conj.fromfile(fh, N_UD_EDGES * N_SYM_D4h)
-fh.close()
+# fname = "conj_ud_edges"
+# if not path.isfile(fname):
+#     print("creating " + fname + " table...")
+#     ud_edges_conj = ar.array('H', [0] * (N_UD_EDGES * N_SYM_D4h))
+#     for t in range(N_UD_EDGES):
+#         if (t + 1) % 400 == 0:
+#             print('.', end='', flush=True)
+#         if (t + 1) % 32000 == 0:
+#             print('')
+#         cc = cb.CubieCube()
+#         cc.set_ud_edges(t)
+#         for s in range(N_SYM_D4h):
+#             ss = cb.CubieCube(symCube[s].cp, symCube[s].co, symCube[s].ep, symCube[s].eo)  # copy cube
+#             ss.edge_multiply(cc)  # s*t
+#             ss.edge_multiply(symCube[inv_idx[s]])  # s*t*s^-1
+#             ud_edges_conj[N_SYM_D4h * t + s] = ss.get_ud_edges()
+#     print('')
+#     fh = open(fname, "wb")
+#     ud_edges_conj.tofile(fh)
+# else:
+#     print("loading " + fname + " table...")
+#     fh = open(fname, "rb")
+#     ud_edges_conj = ar.array('H')
+#     ud_edges_conj.fromfile(fh, N_UD_EDGES * N_SYM_D4h)
+# fh.close()
 # ######################################################################################################################
 
 # ############## Generate the tables to handle the symmetry reduced flip-slice coordinate in  phase 1 ##################

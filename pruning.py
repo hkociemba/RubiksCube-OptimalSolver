@@ -10,10 +10,8 @@ from os import path
 import time
 import array as ar
 
-flipslice_twist_depth3 = None  # global variables, initialized during pruning table cration
-corners_ud_edges_depth3 = None
-cornslice_depth = None
-edgeslice_depth = None
+flipslice_twist_depth3 = None  # global variables, initialized during pruning table creation
+corner_depth = None
 
 # ####################### functions to extract or set values in the pruning tables #####################################
 
@@ -25,13 +23,6 @@ def get_flipslice_twist_depth3(ix):
     return y & 3
 
 
-def get_corners_ud_edges_depth3(ix):
-    """corners_ud_edges_depth3(ix) is *at least* the number of moves % 3 to solve phase 2 of a cube with index ix"""
-    y = corners_ud_edges_depth3[ix // 16]
-    y >>= (ix % 16) * 2
-    return y & 3
-
-
 def set_flipslice_twist_depth3(ix, value):
     shift = (ix % 16) * 2
     base = ix >> 4
@@ -39,11 +30,11 @@ def set_flipslice_twist_depth3(ix, value):
     flipslice_twist_depth3[base] |= value << shift
 
 
-def set_corners_ud_edges_depth3(ix, value):
-    shift = (ix % 16) * 2
-    base = ix >> 4
-    corners_ud_edges_depth3[base] &= ~(3 << shift) & 0xffffffff
-    corners_ud_edges_depth3[base] |= value << shift
+# def get_corner_depth(ix):
+#     return corner_depth[ix]
+#
+# def set_corner_depth(ix, value):
+#     corner_depth[ix] = value
 
 ########################################################################################################################
 
@@ -170,9 +161,41 @@ def create_phase1_prun_table():
         flipslice_twist_depth3.fromfile(fh, total // 16 + 1)
     fh.close()
 
+# def create_phase2_cornsliceprun_table():
+#     """Create/load the corner_depth pruning table. Entry gives the number of moves which are at least necessary
+#     to restore the corners."""
+#     fname = "cornerprun"
+#     global corner_depth
+#     if not path.isfile(fname):
+#         print("creating " + fname + " table...")
+#         corner_depth = ar.array('b', [-1] * (defs.N_CORNERS))
+#         corners = 0  # value for solved corners
+#         corner_depth[corners] = 0
+#         done = 1
+#         depth = 0
+#         while done != defs.N_CORNERS:
+#             for corners in range(defs.N_CORNERS):
+#                 if corner_depth[corners] == depth:
+#                     for m in enums.Move:
+#                         corners1 = mv.corners_move[18 * corners + m]
+#                         if corner_depth[corners1] == -1:  # entry not yet filled
+#                             corner_depth[corners1] = depth + 1
+#                             done += 1
+#                             if done % 1000 == 0:
+#                                 print('.', end='', flush=True)
+#
+#             depth += 1
+#         print()
+#         fh = open(fname, "wb")
+#         corner_depth.tofile(fh)
+#     else:
+#         print("loading " + fname + " table...")
+#         fh = open(fname, "rb")
+#         corner_depth = ar.array('b')
+#         corner_depth.fromfile(fh, defs.N_CORNERS)
+#     fh.close()
 
-
-def create_phase2_cornsliceprun_table():
+def create_cornerprun_table():
     """Create/load the corner_depth pruning table. Entry gives the number of moves which are at least necessary
     to restore the corners."""
     fname = "cornerprun"
@@ -206,10 +229,13 @@ def create_phase2_cornsliceprun_table():
         corner_depth.fromfile(fh, defs.N_CORNERS)
     fh.close()
 
-# array distance computes the new distance from the old_distance i and the new_distance_mod3 j. ########################
-# We need this array because the pruning tables only store the distances mod 3. ########################################
-# The advantage of storing distances mod 3 is that we need only 2 bit per entry to store values 0, 1 or 2 and still
-# have value 3 left to indicate a still empty entry in the tables during table creation.
+
+
+# # array distance computes the new distance from the old_distance i and the new_distance_mod3 j. ######################
+# # We need this array because the pruning tables only store the distances mod 3. ######################################
+# # The advantage of storing distances mod 3 is that we need only 2 bit per entry to store values 0, 1 or 2 and still
+# # have value 3 left to indicate a still empty entry in the tables during table creation.
+
 distance = ar.array('b', [0 for i in range(60)])
 for i in range(20):
     for j in range(3):
@@ -220,4 +246,3 @@ for i in range(20):
             distance[3 * i + j] -= 3
 
 create_phase1_prun_table()
-create_phase2_cornsliceprun_table()
