@@ -65,10 +65,6 @@ class CoordCube:
             self.FB_slice_sorted = ss.get_slice_sorted()
 
 
-
-
-
-
             # symmetry reduced flipslice coordinate used in phase 1
             self.flipslice_classidx = sy.flipslice_classidx[N_FLIP * (self.slice_sorted // N_PERM_4) + self.flip]
             self.flipslice_sym = sy.flipslice_sym[N_FLIP * (self.slice_sorted // N_PERM_4) + self.flip]
