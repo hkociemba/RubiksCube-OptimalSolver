@@ -323,117 +323,117 @@ class CubieCube:
                 self.ep[j] = other_edge[x]
                 x += 1
 
-    def get_u_edges(self):
-        """Get the permutation and location of edges UR, UF, UL and UB.
-            0 <= u_edges < 11880 in phase 1, 0 <= u_edges < 1680 in phase 2, u_edges = 1656 for solved cube."""
-        a = x = 0
-        edge4 = [0] * 4
-        ep_mod = self.ep[:]
-        for j in range(4):
-            rotate_right(ep_mod, 0, 11)
-        # First compute the index a < (12 choose 4) and the permutation array perm.
-        for j in range(Ed.BR, Ed.UR - 1, -1):
-            if Ed.UR <= ep_mod[j] <= Ed.UB:
-                a += c_nk(11 - j, x + 1)
-                edge4[3 - x] = ep_mod[j]
-                x += 1
-        # Then compute the index b < 4! for the permutation in edge4
-        b = 0
-        for j in range(3, 0, -1):
-            k = 0
-            while edge4[j] != j:
-                rotate_left(edge4, 0, j)
-                k += 1
-            b = (j + 1) * b + k
-        return 24 * a + b
-
-    def set_u_edges(self, idx):
-        slice_edge = [Ed.UR, Ed.UF, Ed.UL, Ed.UB]
-        other_edge = [Ed.DR, Ed.DF, Ed.DL, Ed.DB, Ed.FR, Ed.FL, Ed.BL, Ed.BR]
-        b = idx % 24  # Permutation
-        a = idx // 24  # Location
-        for e in Ed:
-            self.ep[e] = -1  # Invalidate all edge positions
-
-        j = 1  # generate permutation from index b
-        while j < 4:
-            k = b % (j + 1)
-            b //= j + 1
-            while k > 0:
-                rotate_right(slice_edge, 0, j)
-                k -= 1
-            j += 1
-
-        x = 4  # set slice edges
-        for j in Ed:
-            if a - c_nk(11 - j, x) >= 0:
-                self.ep[j] = slice_edge[4 - x]
-                a -= c_nk(11 - j, x)
-                x -= 1
-
-        x = 0  # set the remaining edges UR..DB
-        for j in Ed:
-            if self.ep[j] == -1:
-                self.ep[j] = other_edge[x]
-                x += 1
-        for j in range(4):
-            rotate_left(self.ep, 0, 11)
-
-    def get_d_edges(self):
-        """Get the permutation and location of the edges DR, DF, DL and DB.
-            0 <= d_edges < 11880 in phase 1, 0 <= d_edges < 1680 in phase 2, d_edges = 0 for solved cube."""
-        a = x = 0
-        edge4 = [0] * 4
-        ep_mod = self.ep[:]
-        for j in range(4):
-            rotate_right(ep_mod, 0, 11)
-        # First compute the index a < (12 choose 4) and the permutation array perm.
-        for j in range(Ed.BR, Ed.UR - 1, -1):
-            if Ed.DR <= ep_mod[j] <= Ed.DB:
-                a += c_nk(11 - j, x + 1)
-                edge4[3 - x] = ep_mod[j]
-                x += 1
-        # Then compute the index b < 4! for the permutation in edge4
-        b = 0
-        for j in range(3, 0, -1):
-            k = 0
-            while edge4[j] != j + 4:
-                rotate_left(edge4, 0, j)
-                k += 1
-            b = (j + 1) * b + k
-        return 24 * a + b
-
-    def set_d_edges(self, idx):
-        slice_edge = [Ed.DR, Ed.DF, Ed.DL, Ed.DB]
-        other_edge = [Ed.FR, Ed.FL, Ed.BL, Ed.BR, Ed.UR, Ed.UF, Ed.UL, Ed.UB]
-        b = idx % 24  # Permutation
-        a = idx // 24  # Location
-        for e in Ed:
-            self.ep[e] = -1  # Invalidate all edge positions
-
-        j = 1  # generate permutation from index b
-        while j < 4:
-            k = b % (j + 1)
-            b //= j + 1
-            while k > 0:
-                rotate_right(slice_edge, 0, j)
-                k -= 1
-            j += 1
-
-        x = 4  # set slice edges
-        for j in Ed:
-            if a - c_nk(11 - j, x) >= 0:
-                self.ep[j] = slice_edge[4 - x]
-                a -= c_nk(11 - j, x)
-                x -= 1
-
-        x = 0  # set the remaining edges UR..DB
-        for j in Ed:
-            if self.ep[j] == -1:
-                self.ep[j] = other_edge[x]
-                x += 1
-        for j in range(4):
-            rotate_left(self.ep, 0, 11)
+    # def get_u_edges(self):
+    #     """Get the permutation and location of edges UR, UF, UL and UB.
+    #         0 <= u_edges < 11880 in phase 1, 0 <= u_edges < 1680 in phase 2, u_edges = 1656 for solved cube."""
+    #     a = x = 0
+    #     edge4 = [0] * 4
+    #     ep_mod = self.ep[:]
+    #     for j in range(4):
+    #         rotate_right(ep_mod, 0, 11)
+    #     # First compute the index a < (12 choose 4) and the permutation array perm.
+    #     for j in range(Ed.BR, Ed.UR - 1, -1):
+    #         if Ed.UR <= ep_mod[j] <= Ed.UB:
+    #             a += c_nk(11 - j, x + 1)
+    #             edge4[3 - x] = ep_mod[j]
+    #             x += 1
+    #     # Then compute the index b < 4! for the permutation in edge4
+    #     b = 0
+    #     for j in range(3, 0, -1):
+    #         k = 0
+    #         while edge4[j] != j:
+    #             rotate_left(edge4, 0, j)
+    #             k += 1
+    #         b = (j + 1) * b + k
+    #     return 24 * a + b
+    #
+    # def set_u_edges(self, idx):
+    #     slice_edge = [Ed.UR, Ed.UF, Ed.UL, Ed.UB]
+    #     other_edge = [Ed.DR, Ed.DF, Ed.DL, Ed.DB, Ed.FR, Ed.FL, Ed.BL, Ed.BR]
+    #     b = idx % 24  # Permutation
+    #     a = idx // 24  # Location
+    #     for e in Ed:
+    #         self.ep[e] = -1  # Invalidate all edge positions
+    #
+    #     j = 1  # generate permutation from index b
+    #     while j < 4:
+    #         k = b % (j + 1)
+    #         b //= j + 1
+    #         while k > 0:
+    #             rotate_right(slice_edge, 0, j)
+    #             k -= 1
+    #         j += 1
+    #
+    #     x = 4  # set slice edges
+    #     for j in Ed:
+    #         if a - c_nk(11 - j, x) >= 0:
+    #             self.ep[j] = slice_edge[4 - x]
+    #             a -= c_nk(11 - j, x)
+    #             x -= 1
+    #
+    #     x = 0  # set the remaining edges UR..DB
+    #     for j in Ed:
+    #         if self.ep[j] == -1:
+    #             self.ep[j] = other_edge[x]
+    #             x += 1
+    #     for j in range(4):
+    #         rotate_left(self.ep, 0, 11)
+    #
+    # def get_d_edges(self):
+    #     """Get the permutation and location of the edges DR, DF, DL and DB.
+    #         0 <= d_edges < 11880 in phase 1, 0 <= d_edges < 1680 in phase 2, d_edges = 0 for solved cube."""
+    #     a = x = 0
+    #     edge4 = [0] * 4
+    #     ep_mod = self.ep[:]
+    #     for j in range(4):
+    #         rotate_right(ep_mod, 0, 11)
+    #     # First compute the index a < (12 choose 4) and the permutation array perm.
+    #     for j in range(Ed.BR, Ed.UR - 1, -1):
+    #         if Ed.DR <= ep_mod[j] <= Ed.DB:
+    #             a += c_nk(11 - j, x + 1)
+    #             edge4[3 - x] = ep_mod[j]
+    #             x += 1
+    #     # Then compute the index b < 4! for the permutation in edge4
+    #     b = 0
+    #     for j in range(3, 0, -1):
+    #         k = 0
+    #         while edge4[j] != j + 4:
+    #             rotate_left(edge4, 0, j)
+    #             k += 1
+    #         b = (j + 1) * b + k
+    #     return 24 * a + b
+    #
+    # def set_d_edges(self, idx):
+    #     slice_edge = [Ed.DR, Ed.DF, Ed.DL, Ed.DB]
+    #     other_edge = [Ed.FR, Ed.FL, Ed.BL, Ed.BR, Ed.UR, Ed.UF, Ed.UL, Ed.UB]
+    #     b = idx % 24  # Permutation
+    #     a = idx // 24  # Location
+    #     for e in Ed:
+    #         self.ep[e] = -1  # Invalidate all edge positions
+    #
+    #     j = 1  # generate permutation from index b
+    #     while j < 4:
+    #         k = b % (j + 1)
+    #         b //= j + 1
+    #         while k > 0:
+    #             rotate_right(slice_edge, 0, j)
+    #             k -= 1
+    #         j += 1
+    #
+    #     x = 4  # set slice edges
+    #     for j in Ed:
+    #         if a - c_nk(11 - j, x) >= 0:
+    #             self.ep[j] = slice_edge[4 - x]
+    #             a -= c_nk(11 - j, x)
+    #             x -= 1
+    #
+    #     x = 0  # set the remaining edges UR..DB
+    #     for j in Ed:
+    #         if self.ep[j] == -1:
+    #             self.ep[j] = other_edge[x]
+    #             x += 1
+    #     for j in range(4):
+    #         rotate_left(self.ep, 0, 11)
 
     def get_corners(self):
         """Get the permutation of the 8 corners.

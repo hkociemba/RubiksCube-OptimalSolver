@@ -121,7 +121,7 @@ class CoordCube:
         self.UD_flipslice_sym = sy.flipslice_sym[N_FLIP * (self.UD_slice_sorted // N_PERM_4) + self.UD_flip]
         self.UD_flipslice_rep = sy.flipslice_rep[self.UD_flipslice_clsidx]
 
-        m = sy.conj_move[m, sy.symCube[16]]  # move changes too viewed from 120° rotated position
+        m = sy.conj_move[m, 16]  # move changes too viewed from 120° rotated position
         self.RL_twist = mv.twist_move[N_MOVE * self.RL_twist + m]
         self.RL_flip = mv.flip_move[N_MOVE * self.RL_flip + m]
         self.RL_slice_sorted = mv.slice_sorted_move[N_MOVE * self.RL_slice_sorted + m]
@@ -130,7 +130,7 @@ class CoordCube:
         self.RL_flipslice_sym = sy.flipslice_sym[N_FLIP * (self.RL_slice_sorted // N_PERM_4) + self.RL_flip]
         self.RL_flipslice_rep = sy.flipslice_rep[self.RL_flipslice_clsidx]
 
-        m = sy.conj_move[m, sy.symCube[16]] # move changes too viewed from 240° rotated position
+        m = sy.conj_move[m, 16] # move changes too viewed from 240° rotated position
         self.FB_twist = mv.twist_move[N_MOVE * self.FB_twist + m]
         self.FB_flip = mv.flip_move[N_MOVE * self.FB_flip + m]
         self.FB_slice_sorted = mv.slice_sorted_move[N_MOVE * self.FB_slice_sorted + m]
@@ -139,22 +139,26 @@ class CoordCube:
         self.FB_flipslice_sym = sy.flipslice_sym[N_FLIP * (self.FB_slice_sorted // N_PERM_4) + self.FB_flip]
         self.FB_flipslice_rep = sy.flipslice_rep[self.FB_flipslice_clsidx]
 
+        self.UD_phase1_depth = self.get_phase1_depth(0)  # since we store the depth mod 3, retrieving the initial
+        self.RL_phase1_depth = self.get_phase1_depth(1)  # absolute depth is a bit involved
+        self.FB_phase1_depth = self.get_phase1_depth(2)
+
+        self.corner_depth = pr.corner_depth[self.corners]  # for corners we store just the depth
 
 
     def get_phase1_depth(self, position):
-        match position:
-            case 0:
-                slice_ = self.UD_slice_sorted// N_PERM_4
-                flip = self.UD_flip
-                twist = self.UD_twist
-            case 1:
-                slice_ = self.RL_slice_sorted// N_PERM_4
-                flip = self.RL_flip
-                twist = self.RL_twist
-            case 2:
-                slice_ = self.FB_slice_sorted// N_PERM_4
-                flip = self.FB_flip
-                twist = self.FB_twist
+        if position == 0:
+            slice_ = self.UD_slice_sorted// N_PERM_4
+            flip = self.UD_flip
+            twist = self.UD_twist
+        elif position == 1:
+            slice_ = self.RL_slice_sorted// N_PERM_4
+            flip = self.RL_flip
+            twist = self.RL_twist
+        else:
+            slice_ = self.FB_slice_sorted// N_PERM_4
+            flip = self.FB_flip
+            twist = self.FB_twist
 
         flipslice = N_FLIP * slice_  + flip
         classidx = sy.flipslice_classidx[flipslice]

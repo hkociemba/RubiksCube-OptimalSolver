@@ -1,5 +1,6 @@
 # ################### The SolverThread class solves implements the two phase algorithm #################################
 import face
+from defs import N_MOVE, N_FLIP, N_TWIST, N_PERM_4
 import threading as thr
 import cubie
 import symmetries as sy
@@ -9,204 +10,84 @@ import moves as mv
 import pruning as pr
 import time
 
+solfound = False  # Globale Variable, True wenn Lösung gefunden
 
-class SolverThread(thr.Thread):
+def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sorted,\
+           RL_slice_sorted, FB_slice_sorted, UD_dist, RL_dist, FB_dist, togo):
+    global solfound
+    if togo == 0:  # cube solved
+        solfound = True
+        return
 
-    def __init__(self, cb_cube, rot, inv, ret_length, timeout, start_time, solutions, terminated, shortest_length):
-        """
-        :param cb_cube: The cube to be solved in CubieCube representation
-        :param rot: Rotates the  cube 120° * rot along the long diagonal before applying the two-phase-algorithm
-        :param inv: 0: Do not invert the cube . 1: Invert the cube before applying the two-phase-algorithm
-        :param ret_length: If a solution with length <= ret_length is found the search stops.
-         The most efficient way to solve a cube is to start six threads in parallel with rot = 0, 1 and 2 and
-         inv = 0, 1. The first thread which finds a solutions sets the terminated flag which signals all other threads
-         to teminate. On average this solves a cube about 12 times faster than solving one cube with a single thread.
-         And this despite of Pythons GlobalInterpreterLock GIL.
-        :param timeout: Essentially the maximal search time in seconds. Essentially because the search does not return
-         before at least one solution has been found.
-        :param start_time: The time the search started.
-        :param solutions: An array with the found solutions found by the six parallel threads
-        :param terminated: An event shared by the six threads to signal a termination request
-        :param shortest_length: The length of the shortes solutions in the solution array
-        """
-        thr.Thread.__init__(self)
-        self.cb_cube = cb_cube  # CubieCube
-        self.co_cube = None  # CoordCube initialized in function run
-        self.rot = rot
-        self.inv = inv
-        self.sofar_phase1 = None
-        self.sofar_phase2 = None
-        self.lock = thr.Lock()
-        self.ret_length = ret_length
-        self.timeout = timeout
-        self.start_time = start_time
+    else:
+        for m in en.Move:
 
-        self.cornersave = 0
-
-        # these variables are shared by the six threads, initialized in function solve
-        self.solutions = solutions
-        self.terminated = terminated
-        self.shortest_length = shortest_length
-
-    def search_phase2(self, corners, ud_edges, slice_sorted, dist, togo_phase2):
-        # ##############################################################################################################
-        if self.terminated.is_set():
-            return
-        ################################################################################################################
-        if togo_phase2 == 0 and slice_sorted == 0:
-            self.lock.acquire()  # phase 2 solved, store solution
-            man = self.sofar_phase1 + self.sofar_phase2
-            if len(self.solutions) == 0 or (len(self.solutions[-1]) > len(man)):
-
-                if self.inv == 1:  # we solved the inverse cube
-                    man = list(reversed(man))
-                    man[:] = [en.Move((m // 3) * 3 + (2 - m % 3)) for m in man]  # R1->R3, R2->R2, R3->R1 etc.
-                man[:] = [en.Move(sy.conj_move[m, 16 * self.rot]) for m in man]
-                self.solutions.append(man)
-                self.shortest_length[0] = len(man)
-
-            if self.shortest_length[0] <= self.ret_length:  # we have reached the target length
-                self.terminated.set()
-            self.lock.release()
-        else:
-            for m in en.Move:
-                if m in [en.Move.R1, en.Move.R3, en.Move.F1, en.Move.F3,
-                         en.Move.L1, en.Move.L3, en.Move.B1, en.Move.B3]:
+            if len(sofar) > 0:
+                diff = sofar[-1] // 3 - m // 3
+                if diff in [0, 3]:  # successive moves on same face or on same axis with wrong order
                     continue
-
-                if len(self.sofar_phase2) > 0:
-                    diff = self.sofar_phase2[-1] // 3 - m // 3
-                    if diff in [0, 3]:  # successive moves: on same face or on same axis with wrong order
-                        continue
-                else:
-                    if len(self.sofar_phase1) > 0:
-                        diff = self.sofar_phase1[-1] // 3 - m // 3
-                        if diff in [0, 3]:  # successive moves: on same face or on same axis with wrong order
-                            continue
-
-                corners_new = mv.corners_move[18 * corners + m]
-                ud_edges_new = mv.ud_edges_move[18 * ud_edges + m]
-                slice_sorted_new = mv.slice_sorted_move[18 * slice_sorted + m]
-
-                classidx = sy.corner_classidx[corners_new]
-                sym = sy.corner_sym[corners_new]
-                dist_new_mod3 = pr.get_corners_ud_edges_depth3(
-                    40320 * classidx + sy.ud_edges_conj[(ud_edges_new << 4) + sym])
-                dist_new = pr.distance[3 * dist + dist_new_mod3]
-                if max(dist_new, pr.cornslice_depth[24 * corners_new + slice_sorted_new]) >= togo_phase2:
-                    continue  # impossible to reach solved cube in togo_phase2 - 1 moves
-
-                self.sofar_phase2.append(m)
-                self.search_phase2(corners_new, ud_edges_new, slice_sorted_new, dist_new, togo_phase2 - 1)
-                self.sofar_phase2.pop(-1)
-
-    def search(self, flip, twist, slice_sorted, dist, togo_phase1):
-        # ##############################################################################################################
-        if self.terminated.is_set():
-            return
         ################################################################################################################
-        if togo_phase1 == 0:  # phase 1 solved
+            UD_twist1 = mv.twist_move[N_MOVE * UD_twist + m]
+            UD_flip1= mv.flip_move[N_MOVE * UD_flip + m]
+            UD_slice_sorted1= mv.slice_sorted_move[N_MOVE * UD_slice_sorted + m]
 
-            if time.monotonic() > self.start_time + self.timeout and len(self.solutions) > 0:
-                self.terminated.set()
+            fs = N_FLIP * (UD_slice_sorted1 // N_PERM_4) + UD_flip1  # raw new flip_slice coordinate
+            # now representation as representant-symmetry pair
+            fs_idx = sy.flipslice_classidx[fs]  # index of representant
+            fs_sym = sy.flipslice_sym[fs]   # symmetry
 
-            # compute initial phase 2 coordinates
-            if self.sofar_phase1:  # check if list is not empty
-                m = self.sofar_phase1[-1]
-            else:
-                m = en.Move.U1  # value is irrelevant here, no phase 1 moves
+            UD_dist1_mod3 = pr.get_flipslice_twist_depth3(N_TWIST * fs_idx + sy.twist_conj[(UD_twist1 << 4) + fs_sym])
+            UD_dist1 = pr.distance[3 * UD_dist + UD_dist1_mod3]
+        ################################################################################################################
+            mrl = sy.conj_move[m, 16]  # move viewed from 120° rotated position
+            RL_twist1 = mv.twist_move[N_MOVE * RL_twist + mrl]
+            RL_flip1 = mv.flip_move[N_MOVE * RL_flip + mrl]
+            RL_slice_sorted1 = mv.slice_sorted_move[N_MOVE * RL_slice_sorted + mrl]
 
-            if m in [en.Move.R3, en.Move.F3, en.Move.L3, en.Move.B3]:  # phase 1 solution come in pairs
-                corners = mv.corners_move[18 * self.cornersave + m - 1]  # apply R2, F2, L2 ord B2 on last ph1 solution
-            else:
-                corners = self.co_cube.corners
-                for m in self.sofar_phase1:  # get current corner configuration
-                    corners = mv.corners_move[18 * corners + m]
-                self.cornersave = corners
+            fs = N_FLIP * (RL_slice_sorted1 // N_PERM_4) + RL_flip1
+            fs_idx = sy.flipslice_classidx[fs]
+            fs_sym = sy.flipslice_sym[fs]
 
-            # new solution must be shorter and we do not use phase 2 maneuvers with length > 11 - 1 = 10
-            togo2_limit = min(self.shortest_length[0] - len(self.sofar_phase1), 11)
-            if pr.cornslice_depth[24 * corners + slice_sorted] >= togo2_limit: # this precheck speeds up the computation
+            RL_dist1_mod3 = pr.get_flipslice_twist_depth3(N_TWIST * fs_idx + sy.twist_conj[(RL_twist1 << 4) + fs_sym])
+            RL_dist1 = pr.distance[3 * RL_dist + RL_dist1_mod3]
+        ################################################################################################################
+            mfb = sy.conj_move[m, 32]  # move viewed from 240° rotated position
+            FB_twist1 = mv.twist_move[N_MOVE * FB_twist + mfb]
+            FB_flip1 = mv.flip_move[N_MOVE * FB_flip + mfb]
+            FB_slice_sorted1 = mv.slice_sorted_move[N_MOVE * FB_slice_sorted + mfb]
+
+            fs = N_FLIP * (FB_slice_sorted1 // N_PERM_4) + FB_flip1
+            fs_idx = sy.flipslice_classidx[fs]
+            fs_sym = sy.flipslice_sym[fs]
+
+            FB_dist1_mod3 = pr.get_flipslice_twist_depth3(N_TWIST * fs_idx + sy.twist_conj[(FB_twist1 << 4) + fs_sym])
+            FB_dist1 = pr.distance[3 * FB_dist + FB_dist1_mod3]
+        ################################################################################################################
+            dist_new = max(UD_dist1, RL_dist1, FB_dist1)
+            if UD_dist1 != 0 and UD_dist1 == RL_dist1 and RL_dist1 == FB_dist1:
+                dist_new += 1
+
+            if dist_new >= togo:  # impossible to reach subgroup H in togo_phase1 - 1 moves
+                continue
+
+            sofar.append(m)
+            search(UD_flip1, RL_flip1, FB_flip1, UD_twist1, RL_twist1, FB_twist1, UD_slice_sorted1, \
+                   RL_slice_sorted1, FB_slice_sorted1, UD_dist1, RL_dist1, FB_dist1, togo - 1)
+            if solfound:
                 return
-
-            u_edges = self.co_cube.u_edges
-            d_edges = self.co_cube.d_edges
-            for m in self.sofar_phase1:
-                u_edges = mv.u_edges_move[18 * u_edges + m]
-                d_edges = mv.d_edges_move[18 * d_edges + m]
-            ud_edges = coord.u_edges_plus_d_edges_to_ud_edges[24 * u_edges + d_edges % 24]
-
-            dist2 = self.co_cube.get_depth_phase2(corners, ud_edges)
-            for togo2 in range(dist2, togo2_limit):  # do not use more than togo2_limit - 1 moves in phase 2
-                self.sofar_phase2 = []
-                self.search_phase2(corners, ud_edges, slice_sorted, dist2, togo2)
-
-        else:
-            for m in en.Move:
-                # dist = 0 means that we are already are in the subgroup H. If there are less than 5 moves left
-                # this forces all remaining moves to be phase 2 moves. So we can forbid these at the end of phase 1
-                # and generate these moves in phase 2.
-                if dist == 0 and togo_phase1 < 5 and m in [en.Move.U1, en.Move.U2, en.Move.U3, en.Move.R2,
-                                                           en.Move.F2, en.Move.D1, en.Move.D2, en.Move.D3,
-                                                           en.Move.L2, en.Move.B2]:
-                    continue
-
-                if len(self.sofar_phase1) > 0:
-                    diff = self.sofar_phase1[-1] // 3 - m // 3
-                    if diff in [0, 3]:  # successive moves: on same face or on same axis with wrong order
-                        continue
-
-                flip_new = mv.flip_move[18 * flip + m]  # N_MOVE = 18
-                twist_new = mv.twist_move[18 * twist + m]
-                slice_sorted_new = mv.slice_sorted_move[18 * slice_sorted + m]
-
-                flipslice = 2048 * (slice_sorted_new // 24) + flip_new  # N_FLIP * (slice_sorted // N_PERM_4) + flip
-                classidx = sy.flipslice_classidx[flipslice]
-                sym = sy.flipslice_sym[flipslice]
-                dist_new_mod3 = pr.get_flipslice_twist_depth3(2187 * classidx + sy.twist_conj[(twist_new << 4) + sym])
-                dist_new = pr.distance[3 * dist + dist_new_mod3]
-                if dist_new >= togo_phase1:  # impossible to reach subgroup H in togo_phase1 - 1 moves
-                    continue
-
-                self.sofar_phase1.append(m)
-                self.search(flip_new, twist_new, slice_sorted_new, dist_new, togo_phase1 - 1)
-                self.sofar_phase1.pop(-1)
-
-    def run(self):
-        cb = None
-        if self.rot == 0:  # no rotation
-            cb = cubie.CubieCube(self.cb_cube.cp, self.cb_cube.co, self.cb_cube.ep, self.cb_cube.eo)
-        elif self.rot == 1:  # conjugation by 120° rotation
-            cb = cubie.CubieCube(sy.symCube[32].cp, sy.symCube[32].co, sy.symCube[32].ep, sy.symCube[32].eo)
-            cb.multiply(self.cb_cube)
-            cb.multiply(sy.symCube[16])
-        elif self.rot == 2:  # conjugation by 240° rotation
-            cb = cubie.CubieCube(sy.symCube[16].cp, sy.symCube[16].co, sy.symCube[16].ep, sy.symCube[16].eo)
-            cb.multiply(self.cb_cube)
-            cb.multiply(sy.symCube[32])
-        if self.inv == 1:  # invert cube
-            tmp = cubie.CubieCube()
-            cb.inv_cubie_cube(tmp)
-            cb = tmp
-
-        self.co_cube = coord.CoordCube(cb)  # the rotated/inverted cube in coordinate representation
-
-        dist = self.co_cube.get_depth_phase1()
-        for togo1 in range(dist, 20):  # iterative deepening, solution has at least dist moves
-            self.sofar_phase1 = []
-            self.search(self.co_cube.flip, self.co_cube.twist, self.co_cube.slice_sorted, dist, togo1)
-#################################End class SolverThread#################################################################
+            sofar.pop(-1)
 
 
-def solve(cubestring, max_length=20, timeout=3):
+
+
+def solve(cubestring):
     """Solve a cube defined by its cube definition string.
      :param cubestring: The format of the string is given in the Facelet class defined in the file enums.py
-     :param max_length: The function will return if a maneuver of length <= max_length has been found
-     :param timeout: If the function times out, the best solution found so far is returned. If there has not been found
-     any solution yet the computation continues until a first solution appears.
     """
+    global sofar  # the moves of the potential solution maneuver
+    global solfound
     fc = face.FaceCube()
-    s = fc.from_string(cubestring)
+    s = fc.from_string(cubestring)  # initialize fc
     if s != cubie.CUBE_OK:
         return s  # no valid cubestring, gives invalid facelet cube
     cc = fc.to_cubie_cube()
@@ -214,35 +95,25 @@ def solve(cubestring, max_length=20, timeout=3):
     if s != cubie.CUBE_OK:
         return s  # no valid facelet cube, gives invalid cubie cube
 
-    my_threads = []
-    s_time = time.monotonic()
+    coc = coord.CoordCube(cc)
 
-    # these mutable variables are modidified by all six threads
-    s_length = [999]
-    solutions = []
-    terminated = thr.Event()
-    terminated.clear()
-    syms = cc.symmetries()
-    if len(list({16, 20, 24, 28} & set(syms))) > 0:  # we have some rotational symmetry along a long diagonal
-        tr = [0, 3]  # so we search only one direction and the inverse
-    else:
-        tr = range(6)  # This means search in 3 directions + inverse cube
-    if len(list(set(range(48, 96)) & set(syms))) > 0:  # we have some antisymmetry so we do not search the inverses
-        tr = list(filter(lambda x: x < 3, tr))
-    for i in tr:
-        th = SolverThread(cc, i % 3, i // 3, max_length, timeout, s_time, solutions, terminated, [999])
-        my_threads.append(th)
-        th.start()
-    for t in my_threads:
-        t.join()  # wait until all threads have finished
+    togo = max(coc.UD_phase1_depth, coc.RL_phase1_depth, coc.FB_phase1_depth)  # lower bound for distance to solved
+    solfound = False
+    while not solfound:
+        sofar = []
+        search(coc.UD_flip, coc.RL_flip, coc.FB_flip, coc.UD_twist, coc.RL_twist, coc.FB_twist, \
+               coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted, \
+               coc.UD_phase1_depth, coc.RL_phase1_depth, coc.FB_phase1_depth,  togo)
+        togo += 1
     s = ''
-    if len(solutions) > 0:
-        for m in solutions[-1]:  # the last solution is the shortest
-            s += m.name + ' '
-    return s + '(' + str(len(s)//3) + 'f)'
+    for m in sofar:
+        s += m.name + ' '
+    return s + '(' + str(len(s) // 3) + 'f)'
+
+
 ########################################################################################################################
 
-def solveto(cubestring,goalstring, max_length=20, timeout=3):
+def solveto(cubestring, goalstring, max_length=20, timeout=3):
     """Solve a cube defined by cubstring to a position defined by goalstring.
      :param cubestring: The format of the string is given in the Facelet class defined in the file enums.py
      :param goalstring: The format of the string is given in the Facelet class defined in the file enums.py
@@ -271,7 +142,6 @@ def solveto(cubestring,goalstring, max_length=20, timeout=3):
     ccg.inv_cubie_cube(cc)
     cc.multiply(cc0)
 
-
     my_threads = []
     s_time = time.monotonic()
 
@@ -297,5 +167,5 @@ def solveto(cubestring,goalstring, max_length=20, timeout=3):
     if len(solutions) > 0:
         for m in solutions[-1]:  # the last solution is the shortest
             s += m.name + ' '
-    return s + '(' + str(len(s)//3) + 'f)'
+    return s + '(' + str(len(s) // 3) + 'f)'
 ########################################################################################################################

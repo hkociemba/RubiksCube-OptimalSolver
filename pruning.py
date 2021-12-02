@@ -246,3 +246,4 @@ for i in range(20):
             distance[3 * i + j] -= 3
 
 create_phase1_prun_table()
+create_cornerprun_table()
