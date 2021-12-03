@@ -10,11 +10,14 @@ import moves as mv
 import pruning as pr
 import time
 
-solfound = False  # Globale Variable, True wenn Lösung gefunden
+solfound = False  # global variable, True if solution is found
+nodecount = 0  # number of nodes generated on certain level
+cputime = 0
 
-def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sorted,\
+
+def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sorted, \
            RL_slice_sorted, FB_slice_sorted, corners, UD_dist, RL_dist, FB_dist, togo):
-    global solfound
+    global solfound, nodecount, cputime
 
     if solfound:
         return
@@ -30,20 +33,24 @@ def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sor
                 diff = sofar[-1] // 3 - m // 3
                 if diff in [0, 3]:  # successive moves on same face or on same axis with wrong order
                     continue
-        ################################################################################################################
+
+            nodecount +=1
+            ################################################################################################################
             UD_twist1 = mv.twist_move[N_MOVE * UD_twist + m]
-            UD_flip1= mv.flip_move[N_MOVE * UD_flip + m]
-            UD_slice_sorted1= mv.slice_sorted_move[N_MOVE * UD_slice_sorted + m]
+            UD_flip1 = mv.flip_move[N_MOVE * UD_flip + m]
+            UD_slice_sorted1 = mv.slice_sorted_move[N_MOVE * UD_slice_sorted + m]
 
             fs = N_FLIP * (UD_slice_sorted1 // N_PERM_4) + UD_flip1  # raw new flip_slice coordinate
             # now representation as representant-symmetry pair
             fs_idx = sy.flipslice_classidx[fs]  # index of representant
-            fs_sym = sy.flipslice_sym[fs]   # symmetry
+            fs_sym = sy.flipslice_sym[fs]  # symmetry
 
             UD_dist1_mod3 = pr.get_flipslice_twist_depth3(N_TWIST * fs_idx + sy.twist_conj[(UD_twist1 << 4) + fs_sym])
             UD_dist1 = pr.distance[3 * UD_dist + UD_dist1_mod3]
-        ################################################################################################################
-            mrl = sy.conj_move[m, 16]  # move viewed from 120° rotated position
+
+            ################################################################################################################
+            mrl = sy.conj_move[N_MOVE*16 + m]  # move viewed from 120° rotated position
+
             RL_twist1 = mv.twist_move[N_MOVE * RL_twist + mrl]
             RL_flip1 = mv.flip_move[N_MOVE * RL_flip + mrl]
             RL_slice_sorted1 = mv.slice_sorted_move[N_MOVE * RL_slice_sorted + mrl]
@@ -54,8 +61,9 @@ def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sor
 
             RL_dist1_mod3 = pr.get_flipslice_twist_depth3(N_TWIST * fs_idx + sy.twist_conj[(RL_twist1 << 4) + fs_sym])
             RL_dist1 = pr.distance[3 * RL_dist + RL_dist1_mod3]
-        ################################################################################################################
-            mfb = sy.conj_move[m, 32]  # move viewed from 240° rotated position
+            ################################################################################################################
+            mfb = sy.conj_move[N_MOVE*32 + m]  # move viewed from 240° rotated position
+
             FB_twist1 = mv.twist_move[N_MOVE * FB_twist + mfb]
             FB_flip1 = mv.flip_move[N_MOVE * FB_flip + mfb]
             FB_slice_sorted1 = mv.slice_sorted_move[N_MOVE * FB_slice_sorted + mfb]
@@ -63,11 +71,12 @@ def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sor
             fs = N_FLIP * (FB_slice_sorted1 // N_PERM_4) + FB_flip1
             fs_idx = sy.flipslice_classidx[fs]
             fs_sym = sy.flipslice_sym[fs]
-
             FB_dist1_mod3 = pr.get_flipslice_twist_depth3(N_TWIST * fs_idx + sy.twist_conj[(FB_twist1 << 4) + fs_sym])
             FB_dist1 = pr.distance[3 * FB_dist + FB_dist1_mod3]
-        ################################################################################################################
-            corners1 = mv.corners_move[N_MOVE*corners + m]
+            ################################################################################################################
+
+
+            corners1 = mv.corners_move[N_MOVE * corners + m]
             co_dist1 = pr.corner_depth[corners1]
 
             dist_new = max(UD_dist1, RL_dist1, FB_dist1)
@@ -77,8 +86,9 @@ def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sor
 
             if dist_new >= togo:  # impossible to reach subgroup H in togo_phase1 - 1 moves
                 continue
-
+            #timex = time.perf_counter()
             sofar.append(m)
+            #cputime += (time.perf_counter() - timex)
             search(UD_flip1, RL_flip1, FB_flip1, UD_twist1, RL_twist1, FB_twist1, UD_slice_sorted1, \
                    RL_slice_sorted1, FB_slice_sorted1, corners1, UD_dist1, RL_dist1, FB_dist1, togo - 1)
             if solfound:
@@ -86,14 +96,12 @@ def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sor
             sofar.pop(-1)
 
 
-
-
 def solve(cubestring):
     """Solve a cube defined by its cube definition string.
      :param cubestring: The format of the string is given in the Facelet class defined in the file enums.py
     """
     global sofar  # the moves of the potential solution maneuver
-    global solfound
+    global solfound, nodecount, cputime
     fc = face.FaceCube()
     s = fc.from_string(cubestring)  # initialize fc
     if s != cubie.CUBE_OK:
@@ -110,10 +118,16 @@ def solve(cubestring):
     while not solfound:
         sofar = []
         s_time = time.monotonic()
+        nodecount = 0
+        cputime = 0
         search(coc.UD_flip, coc.RL_flip, coc.FB_flip, coc.UD_twist, coc.RL_twist, coc.FB_twist, \
-               coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted,coc.corners,\
-               coc.UD_phase1_depth, coc.RL_phase1_depth, coc.FB_phase1_depth,  togo)
-        print('depth ' + str(togo) + ' done in ' + str(time.monotonic() - s_time) +' s')
+               coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted, coc.corners, \
+               coc.UD_phase1_depth, coc.RL_phase1_depth, coc.FB_phase1_depth, togo)
+        print('depth ' + str(togo) + ' done in ' + str(round(time.monotonic() - s_time,2)) + ' s')
+        if togo > 12:
+            print('nodes generated in depth ' + str(togo)+': ' + str(nodecount) + ', about ' + str(
+                round(nodecount / (time.monotonic() - s_time))) + ' nodes/s')
+            # print(cputime)
         togo += 1
     s = ''
     for m in sofar:

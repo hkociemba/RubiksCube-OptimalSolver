@@ -121,7 +121,7 @@ class CoordCube:
         self.UD_flipslice_sym = sy.flipslice_sym[N_FLIP * (self.UD_slice_sorted // N_PERM_4) + self.UD_flip]
         self.UD_flipslice_rep = sy.flipslice_rep[self.UD_flipslice_clsidx]
 
-        m = sy.conj_move[m, 16]  # move changes too viewed from 120° rotated position
+        m = sy.conj_move[N_MOVE*16 + m]  # move changes too viewed from 120° rotated position
         self.RL_twist = mv.twist_move[N_MOVE * self.RL_twist + m]
         self.RL_flip = mv.flip_move[N_MOVE * self.RL_flip + m]
         self.RL_slice_sorted = mv.slice_sorted_move[N_MOVE * self.RL_slice_sorted + m]
@@ -130,7 +130,7 @@ class CoordCube:
         self.RL_flipslice_sym = sy.flipslice_sym[N_FLIP * (self.RL_slice_sorted // N_PERM_4) + self.RL_flip]
         self.RL_flipslice_rep = sy.flipslice_rep[self.RL_flipslice_clsidx]
 
-        m = sy.conj_move[m, 16] # move changes too viewed from 240° rotated position
+        m = sy.conj_move[N_MOVE*16 + m] # move changes too viewed from 240° rotated position
         self.FB_twist = mv.twist_move[N_MOVE * self.FB_twist + m]
         self.FB_flip = mv.flip_move[N_MOVE * self.FB_flip + m]
         self.FB_slice_sorted = mv.slice_sorted_move[N_MOVE * self.FB_slice_sorted + m]
