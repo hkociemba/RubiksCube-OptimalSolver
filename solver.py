@@ -13,10 +13,14 @@ import time
 solfound = False  # Globale Variable, True wenn Lösung gefunden
 
 def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sorted,\
-           RL_slice_sorted, FB_slice_sorted, UD_dist, RL_dist, FB_dist, togo):
+           RL_slice_sorted, FB_slice_sorted, corners, UD_dist, RL_dist, FB_dist, togo):
     global solfound
-    if togo == 0:  # cube solved
-        solfound = True
+
+    if solfound:
+        return
+    if togo == 0:
+        if UD_slice_sorted == 0 and RL_slice_sorted == 0 and FB_slice_sorted == 0 and corners == 0:
+            solfound = True
         return
 
     else:
@@ -63,16 +67,20 @@ def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sor
             FB_dist1_mod3 = pr.get_flipslice_twist_depth3(N_TWIST * fs_idx + sy.twist_conj[(FB_twist1 << 4) + fs_sym])
             FB_dist1 = pr.distance[3 * FB_dist + FB_dist1_mod3]
         ################################################################################################################
+            corners1 = mv.corners_move[N_MOVE*corners + m]
+            co_dist1 = pr.corner_depth[corners1]
+
             dist_new = max(UD_dist1, RL_dist1, FB_dist1)
             if UD_dist1 != 0 and UD_dist1 == RL_dist1 and RL_dist1 == FB_dist1:
-                dist_new += 1
+                dist_new += 1  # not obvious but true
+            dist_new = max(dist_new, co_dist1)
 
             if dist_new >= togo:  # impossible to reach subgroup H in togo_phase1 - 1 moves
                 continue
 
             sofar.append(m)
             search(UD_flip1, RL_flip1, FB_flip1, UD_twist1, RL_twist1, FB_twist1, UD_slice_sorted1, \
-                   RL_slice_sorted1, FB_slice_sorted1, UD_dist1, RL_dist1, FB_dist1, togo - 1)
+                   RL_slice_sorted1, FB_slice_sorted1, corners1, UD_dist1, RL_dist1, FB_dist1, togo - 1)
             if solfound:
                 return
             sofar.pop(-1)
@@ -101,9 +109,11 @@ def solve(cubestring):
     solfound = False
     while not solfound:
         sofar = []
+        s_time = time.monotonic()
         search(coc.UD_flip, coc.RL_flip, coc.FB_flip, coc.UD_twist, coc.RL_twist, coc.FB_twist, \
-               coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted, \
+               coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted,coc.corners,\
                coc.UD_phase1_depth, coc.RL_phase1_depth, coc.FB_phase1_depth,  togo)
+        print('depth ' + str(togo) + ' done in ' + str(time.monotonic() - s_time) +' s')
         togo += 1
     s = ''
     for m in sofar:
