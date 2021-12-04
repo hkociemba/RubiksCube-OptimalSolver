@@ -350,31 +350,6 @@ class CubieCube:
                 rotate_right(self.cp, 0, j)
                 k -= 1
 
-    # def get_ud_edges(self):
-    #     """Get the permutation of the 8 U and D edges.
-    #         ud_edges undefined in phase 1, 0 <= ud_edges < 40320 in phase 2, ud_edges = 0 for solved cube."""
-    #     perm = self.ep[0:8]  # duplicate first 8 elements of ep
-    #     b = 0
-    #     for j in range(Ed.DB, Ed.UR, -1):
-    #         k = 0
-    #         while perm[j] != j:
-    #             rotate_left(perm, 0, j)
-    #             k += 1
-    #         b = (j + 1) * b + k
-    #     return b
-    #
-    # def set_ud_edges(self, idx):
-    #     # positions of FR FL BL BR edges are not affected
-    #     for i in list(Ed)[0:8]:
-    #         self.ep[i] = i
-    #     for j in list(Ed)[0:8]:
-    #         k = idx % (j + 1)
-    #         idx //= j + 1
-    #         while k > 0:
-    #             rotate_right(self.ep, 0, j)
-    #             k -= 1
-
-    # ###################################### end coordinates for phase 1 ###############################################
 
     # ############################################ other usefull functions #################################################
     def randomize(self):

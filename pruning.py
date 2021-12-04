@@ -30,12 +30,6 @@ def set_flipslice_twist_depth3(ix, value):
     flipslice_twist_depth3[base] |= value << shift
 
 
-# def get_corner_depth(ix):
-#     return corner_depth[ix]
-#
-# def set_corner_depth(ix, value):
-#     corner_depth[ix] = value
-
 ########################################################################################################################
 
 
@@ -160,40 +154,6 @@ def create_phase1_prun_table():
         flipslice_twist_depth3 = ar.array('L')
         flipslice_twist_depth3.fromfile(fh, total // 16 + 1)
     fh.close()
-
-# def create_phase2_cornsliceprun_table():
-#     """Create/load the corner_depth pruning table. Entry gives the number of moves which are at least necessary
-#     to restore the corners."""
-#     fname = "cornerprun"
-#     global corner_depth
-#     if not path.isfile(fname):
-#         print("creating " + fname + " table...")
-#         corner_depth = ar.array('b', [-1] * (defs.N_CORNERS))
-#         corners = 0  # value for solved corners
-#         corner_depth[corners] = 0
-#         done = 1
-#         depth = 0
-#         while done != defs.N_CORNERS:
-#             for corners in range(defs.N_CORNERS):
-#                 if corner_depth[corners] == depth:
-#                     for m in enums.Move:
-#                         corners1 = mv.corners_move[18 * corners + m]
-#                         if corner_depth[corners1] == -1:  # entry not yet filled
-#                             corner_depth[corners1] = depth + 1
-#                             done += 1
-#                             if done % 1000 == 0:
-#                                 print('.', end='', flush=True)
-#
-#             depth += 1
-#         print()
-#         fh = open(fname, "wb")
-#         corner_depth.tofile(fh)
-#     else:
-#         print("loading " + fname + " table...")
-#         fh = open(fname, "rb")
-#         corner_depth = ar.array('b')
-#         corner_depth.fromfile(fh, defs.N_CORNERS)
-#     fh.close()
 
 def create_cornerprun_table():
     """Create/load the corner_depth pruning table. Entry gives the number of moves which are at least necessary

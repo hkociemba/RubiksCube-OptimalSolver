@@ -73,17 +73,6 @@ for j in range(N_SYM):
             break
 ########################################################################################################################
 
-# ################################# Generate the group table for the 48 cube symmetries ################################
-# mult_sym = np.empty([N_SYM, N_SYM], dtype=np.uint8)
-# for i in range(N_SYM):
-#     for j in range(N_SYM):
-#         cc = cb.CubieCube(symCube[i].cp, symCube[i].co, symCube[i].ep, symCube[i].eo)
-#         cc.multiply(symCube[j])
-#         for k in range(N_SYM):
-#             if cc == symCube[k]:  # SymCube[i]*SymCube[j] == SymCube[k]
-#                 mult_sym[i][j] = k
-#                 break
-########################################################################################################################
 
 # #### Generate the table for the conjugation of a move m by a symmetry s. conj_move[N_MOVE*s + m] = s*m*s^-1 ##########
 conj_move = ar.array('H', [0] * (N_MOVE * N_SYM))
