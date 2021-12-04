@@ -20,22 +20,22 @@ the program generated about 700.000 nodes/s. The number of nodes for a full dept
 were about 120.000.000.000 and took 2 days.
 
 Michael Reid 1997 https://www.cflmath.com/Rubik/optimal_solver.html proposed the method implemented here and he used the
-pruning table for the first phase the two-phase algorithm. By reducing the table size by 16 of the 48 cube symmetries and
+pruning table for the first phase of the two-phase algorithm. By reducing the table size by 16 of the 48 cube symmetries and
 applying this pruning table simultaneously in three directions he got a much more powerful heuristics with the phase 1 
 pruning table which has a size of only 34 MB in the implementation given here.  
 
 The number of nodes which needs to be generated for a full depth 17 search is much less compared to Korf's method and
-only about 2.000.000.000. With the standard CPython only about 150.000 nodes/s are done which is unsatisfactory.  
-But with PyPy https://www.pypy.org/index.html I got more than 3.000.000 nodes/s and a full depth 17 search took only 
-less than 15 minutes.
+only about 2.000.000.000. But with the standard CPython only about 150.000 nodes/s are done which is unsatisfactory.  
+With PyPy https://www.pypy.org/index.html I got more than 3.000.000 nodes/s and a full depth 17 search took only 
+less than 15 minutes!
 
 ##Conclusion
 Using pypy3 the majority of Rubik's cube can be solved within a reasonable time (minutes, hours) using only the pruning
 table of phase 1 of the two-phase algorithm.
 
 ## Usage
-Put the *.py files into your path and do an "import test" from the Python Console. This generates a Random Cube and shows
-information about the solving process.
+Put the *.py files into your path and do an "import test" from the Python Console. This generates necessary tables,
+a Random Cube and shows information about the solving process.
 
 ##Todo
 Implement a 24 times larger pruning table which takes into account also the 24 permutations of the 4 edges used for the
