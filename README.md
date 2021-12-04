@@ -29,7 +29,7 @@ only about 2.000.000.000. But with the standard CPython only about 150.000 nodes
 With PyPy https://www.pypy.org/index.html I got more than 3.000.000 nodes/s and a full depth 17 search took only 
 less than 15 minutes!
 
-##Conclusion
+## Conclusion
 Using pypy3 the majority of Rubik's cube can be solved within a reasonable time (minutes, hours) using only the pruning
 table of phase 1 of the two-phase algorithm.
 
