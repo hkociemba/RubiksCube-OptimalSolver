@@ -24,7 +24,6 @@ edgeColor = [[Cl.U, Cl.R], [Cl.U, Cl.F], [Cl.U, Cl.L], [Cl.U, Cl.B], [Cl.D, Cl.R
 
 # ###################################### some "constants" ##############################################################
 N_PERM_4 = 24
-N_CHOOSE_8_4 = 70
 N_MOVE = 18  # number of possible face moves
 
 N_TWIST = 2187  # 3^7 possible corner orientations in phase 1
@@ -33,10 +32,8 @@ N_SLICE_SORTED = 11880  # 12*11*10*9 possible positions of the FR, FL, BL, BR ed
 N_SLICE = N_SLICE_SORTED // N_PERM_4  # we ignore the permutation of FR, FL, BL, BR in phase 1
 N_FLIPSLICE_CLASS = 64430  # number of equivalence classes for combined flip+slice concerning symmetry group D4h
 
-N_U_EDGES_PHASE2 = 1680  # number of different positions of the edges UR, UF, UL and UB in phase 2
 N_CORNERS = 40320  # 8! corner permutations in phase 2
 N_CORNERS_CLASS = 2768  # number of equivalence classes concerning symmetry group D4h
-N_UD_EDGES = 40320  # 8! permutations of the edges in the U-face and D-face in phase 2
 
 N_SYM = 48  # number of cube symmetries of full group Oh
 N_SYM_D4h = 16  # Number of symmetries of subgroup D4h

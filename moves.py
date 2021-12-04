@@ -4,7 +4,7 @@ from os import path
 import array as ar
 import cubie as cb
 import enums
-from defs import N_TWIST, N_FLIP, N_SLICE_SORTED, N_CORNERS, N_UD_EDGES, N_MOVE
+from defs import N_TWIST, N_FLIP, N_SLICE_SORTED, N_CORNERS,  N_MOVE
 
 a = cb.CubieCube()
 # ######################################### Move table for the twists of the corners. ##################################

@@ -1,25 +1,50 @@
-# ##### The cube on the coordinate level. It is described by a 3-tuple of natural numbers in phase 1 and phase 2. ######
-
-from os import path
-import array as ar
-
+# ######################################### The cube on the coordinate level. ##########################################
 import cubie as cb
-import enums
+from enums import Move
 import moves as mv
 import pruning as pr
 import symmetries as sy
-from defs import N_U_EDGES_PHASE2, N_PERM_4, N_CHOOSE_8_4, N_FLIP, N_TWIST, N_UD_EDGES, N_MOVE
-from enums import Edge as Ed
+from defs import N_PERM_4, N_FLIP, N_TWIST, N_MOVE
 
-SOLVED = 0  # 0 is index of solved state (except for u_edges coordinate)
-u_edges_plus_d_edges_to_ud_edges = None  # global variable
-
+SOLVED = 0  # 0 is index of the solved state
 
 class CoordCube:
-    """Represent a cube on the coordinate level.
+    """Represent a cube on the coordinate level. There are 16 symmetries of a cube which keep the UD-axis fixed
+    (point group D4h) and these can be used to reduce the size of the pruning tables
 
-    In phase 1 a state is uniquely determined by the three coordinates flip, twist and slice.
-    In phase 2 a state is uniquely determined by the three coordinates corners, ud_edges and slice_sorted.
+    0 <= corners < 8! describes the corner permutation.
+    0 <= UD_twist < 3^7 describes the corner twist of the 8 corners relative to the UD-axis
+    0 <= UD_flip < 2^11 describes the edge flip of the 12 edges relative to the UD-axis
+
+    0 <= UD_slice_sorted < Binomial(12,4)*4! describes the position and permutation of the 4 UD-slice edges
+    0 <= RL_slice_sorted < Binomial(12,4)*4! describes the position and permutation of the 4 RL-slice edges
+    in a position of the cube which is rotated by 120° along the URF-DLB axis (the rotation that moves the RL-slice
+    to the UD-slice)
+    0 <= FB_slice_sorted < Binomial(12,4)*4! describes the position and permutation of the 4 FB-slice edges
+    in a position of the cube which is rotated by 240° along the URF-DLB axis  (the rotation that moves the FB-slice
+    to the UD-slice)
+
+    0 <= UD_slice_sorted//4! = UD_slice < Binomial(12,4) just describes the position of the 4 UD-slice edges
+    0 <= RL_slice_sorted//4! = RL_slice < Binomial(12,4) just describes the position of the 4 RL-slice edges
+    0 <= FB_slice_sorted//4! = FB_slice < Binomial(12,4)  just describes the position of the 4 FB-slice edges
+
+    The flip and the slice coordinate are combined to a flipslice coordinate in the range 0...1.013.760.
+    0 <= UD_flipslice = 2^11*UD_slice + UD_flip < 2^11*Binomial(12,4) = 1.013.760 then is symmetry-reduced by the 16
+     symmetries of D4h, which means in this case that you get 64430 equivalence classes (roughly 1.013.760//16) and
+     most equivalence classes contain 16 positions which are related by D4h symmetry: s^-1*pos1*s = pos2 for some
+     symmetry s from D4h and pos1 and pos2 in this class.
+     For an UD_flipslice coordinate X then:
+     flipslice_classidx[X] gives the index 0 <= clsidx < 64430 of the equivalence class that contains the
+     UD_flipslice coordinate X and
+     flipslice_sym[X] gives the symmetry 0 <= sym < 16 such that X = sym^-1*rep*sym, where rep is the representant
+     of the class. We choose the representant to be the element with the smallest UD_flipslice coordinate in the
+     equivalence class. The same applies for RL_flipslice and FB_flipslice.
+
+     The pruning table then has 64430*3^7 entries and holds the information about the *shortest* distance of any position
+     to some  position where flip = twist = slice = 0. The solved cube is one of these positions so the distance to a solved
+     cube is at least the table distance. The pruning table can be used for all three orientations related
+     by a 12O° rotation of the cube simultaneously. Only 2 bits are used per entry since the distance is only stored
+     modulo 3 which still keeps all information.
     """
 
     def __init__(self, cc: cb.CubieCube = None):  # init CoordCube from CubieCube
@@ -69,7 +94,6 @@ class CoordCube:
             self.FB_flip = ss.get_flip()
             self.FB_slice_sorted = ss.get_slice_sorted()
 
-
             # symmetry reduced flipslice coordinates, coord = sym^-1*rep*sym
             self.UD_flipslice_clsidx = sy.flipslice_classidx[N_FLIP * (self.UD_slice_sorted // N_PERM_4) + self.UD_flip]
             self.UD_flipslice_sym = sy.flipslice_sym[N_FLIP * (self.UD_slice_sorted // N_PERM_4) + self.UD_flip]
@@ -89,19 +113,18 @@ class CoordCube:
 
             self.corner_depth = pr.corner_depth[self.corners]  # for corners we store just the depth
 
-
     def __str__(self):
-        s = '(UD_twist: ' + str(self.UD_twist) + ', UD_flip: ' + str(self.UD_flip) + ', UD_slice: ' +\
+        s = '(UD_twist: ' + str(self.UD_twist) + ', UD_flip: ' + str(self.UD_flip) + ', UD_slice: ' + \
             str(self.UD_slice_sorted // 24) + ', UD_slice_sorted: ' + str(self.UD_slice_sorted) + ')'
-        s = s + '\n' +'UD classidx, sym, rep' + str(self.UD_flipslice_clsidx) + ' ' + \
+        s = s + '\n' + 'UD classidx, sym, rep' + str(self.UD_flipslice_clsidx) + ' ' + \
             str(self.UD_flipslice_sym) + ' ' + str(self.UD_flipslice_rep)
 
-        s = s + '\n' + '(RL_twist: ' + str(self.RL_twist) + ', RL_flip: ' + str(self.RL_flip) + ', RL_slice: ' +\
+        s = s + '\n' + '(RL_twist: ' + str(self.RL_twist) + ', RL_flip: ' + str(self.RL_flip) + ', RL_slice: ' + \
             str(self.RL_slice_sorted // 24) + ', RL_slice_sorted: ' + str(self.RL_slice_sorted) + ')'
         s = s + '\n' + 'RL classidx, sym, rep' + str(self.RL_flipslice_clsidx) + ' ' + \
             str(self.RL_flipslice_sym) + ' ' + str(self.RL_flipslice_rep)
 
-        s = s + '\n' + '(FB_twist: ' + str(self.FB_twist) + ', FB_flip: ' + str(self.FB_flip) + ', FB_slice: ' +\
+        s = s + '\n' + '(FB_twist: ' + str(self.FB_twist) + ', FB_flip: ' + str(self.FB_flip) + ', FB_slice: ' + \
             str(self.FB_slice_sorted // 24) + ', FB_slice_sorted: ' + str(self.FB_slice_sorted) + ')'
         s = s + '\n' + ' FB_classidx, sym, rep' + str(self.FB_flipslice_clsidx) + ' ' + \
             str(self.FB_flipslice_sym) + ' ' + str(self.FB_flipslice_rep)
@@ -121,7 +144,7 @@ class CoordCube:
         self.UD_flipslice_sym = sy.flipslice_sym[N_FLIP * (self.UD_slice_sorted // N_PERM_4) + self.UD_flip]
         self.UD_flipslice_rep = sy.flipslice_rep[self.UD_flipslice_clsidx]
 
-        m = sy.conj_move[N_MOVE*16 + m]  # move changes too viewed from 120° rotated position
+        m = sy.conj_move[N_MOVE * 16 + m]  # move changes too viewed from 120° rotated position
         self.RL_twist = mv.twist_move[N_MOVE * self.RL_twist + m]
         self.RL_flip = mv.flip_move[N_MOVE * self.RL_flip + m]
         self.RL_slice_sorted = mv.slice_sorted_move[N_MOVE * self.RL_slice_sorted + m]
@@ -130,7 +153,7 @@ class CoordCube:
         self.RL_flipslice_sym = sy.flipslice_sym[N_FLIP * (self.RL_slice_sorted // N_PERM_4) + self.RL_flip]
         self.RL_flipslice_rep = sy.flipslice_rep[self.RL_flipslice_clsidx]
 
-        m = sy.conj_move[N_MOVE*16 + m] # move changes too viewed from 240° rotated position
+        m = sy.conj_move[N_MOVE * 16 + m]  # move changes too viewed from 240° rotated position
         self.FB_twist = mv.twist_move[N_MOVE * self.FB_twist + m]
         self.FB_flip = mv.flip_move[N_MOVE * self.FB_flip + m]
         self.FB_slice_sorted = mv.slice_sorted_move[N_MOVE * self.FB_slice_sorted + m]
@@ -145,22 +168,22 @@ class CoordCube:
 
         self.corner_depth = pr.corner_depth[self.corners]  # for corners we store just the depth
 
-
     def get_phase1_depth(self, position):
+        # find initial distance from given position
         if position == 0:
-            slice_ = self.UD_slice_sorted// N_PERM_4
+            slice_ = self.UD_slice_sorted // N_PERM_4
             flip = self.UD_flip
             twist = self.UD_twist
         elif position == 1:
-            slice_ = self.RL_slice_sorted// N_PERM_4
+            slice_ = self.RL_slice_sorted // N_PERM_4
             flip = self.RL_flip
             twist = self.RL_twist
         else:
-            slice_ = self.FB_slice_sorted// N_PERM_4
+            slice_ = self.FB_slice_sorted // N_PERM_4
             flip = self.FB_flip
             twist = self.FB_twist
 
-        flipslice = N_FLIP * slice_  + flip
+        flipslice = N_FLIP * slice_ + flip
         classidx = sy.flipslice_classidx[flipslice]
         sym = sy.flipslice_sym[flipslice]
         depth_mod3 = pr.get_flipslice_twist_depth3(N_TWIST * classidx + sy.twist_conj[(twist << 4) + sym])
@@ -169,7 +192,7 @@ class CoordCube:
         while flip != SOLVED or slice_ != SOLVED or twist != SOLVED:
             if depth_mod3 == 0:
                 depth_mod3 = 3
-            for m in enums.Move:  # we can use the same m in all 3 rotational positions
+            for m in Move:  # we can use the same m in all 3 rotational positions
                 twist1 = mv.twist_move[N_MOVE * twist + m]
                 flip1 = mv.flip_move[N_MOVE * flip + m]
                 slice1 = mv.slice_sorted_move[N_MOVE * slice_ * N_PERM_4 + m] // N_PERM_4  # we may set perm=0 here
@@ -185,5 +208,4 @@ class CoordCube:
                     depth_mod3 -= 1
                     break
         return depth
-########################################################################################################################
 

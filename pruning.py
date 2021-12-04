@@ -1,5 +1,5 @@
 # ##################### The pruning tables cut the search tree during the search. ######################################
-# ##################### The pruning values are stored modulo 3 which saves a lot of memory. ############################
+# ############ The pruning values are stored modulo 3 for phase 1 table which saves a lot of memory. ###################
 
 import defs
 import enums
