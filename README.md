@@ -37,7 +37,7 @@ table of phase 1 of the two-phase algorithm.
 Put the *.py files into your path and do an "import test" from the Python Console. This generates necessary tables,
 a Random Cube and shows information about the solving process.
 
-##Todo
+## Todo
 Implement a 24 times larger pruning table which takes into account also the 24 permutations of the 4 edges used for the
 "slice coordinate"
 
