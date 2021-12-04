@@ -30,14 +30,14 @@ With PyPy https://www.pypy.org/index.html I got more than 3.000.000 nodes/s and 
 less than 15 minutes!
 
 ## Conclusion
-Using pypy3 the majority of Rubik's cube can be solved within a reasonable time (minutes, hours) using only the pruning
-table of phase 1 of the two-phase algorithm.
+Using pypy3 the majority of Rubik's cube can be solved within a reasonable time (minutes, hours) essentially using
+only the pruning table of phase 1 of the two-phase algorithm.
 
 ## Usage
-Put the *.py files into your path and do an "import test" from the Python Console. This generates necessary tables,
-a Random Cube and shows information about the solving process.
+Put the *.py files into your path and do an "import test" from the Python Console. This generates necessary tables
+(within minutes with pypy3) and a random cube and solves this cube showing information about the solving process.
 
 ## Todo
 Implement a 24 times larger pruning table which takes into account also the 24 permutations of the 4 edges used for the
-"slice coordinate"
+"slice coordinate" of the two-phase algorithm.
 
