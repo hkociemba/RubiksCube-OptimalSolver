@@ -1,5 +1,6 @@
 # ######################################### The cube on the coordinate level. ##########################################
 import cubie as cb
+import defs
 from enums import Move
 import moves as mv
 import pruning as pr
@@ -166,6 +167,11 @@ class CoordCube:
         self.RL_phase1_depth = self.get_phase1_depth(1)  # absolute depth is a bit involved
         self.FB_phase1_depth = self.get_phase1_depth(2)
 
+        if defs.BIG_TABLE:
+            self.UD_phasex24_depth = self.get_phasex24_depth(0)
+            self.RL_phasex24_depth = self.get_phasex24_depth(1)
+            self.FB_phasex24_depth = self.get_phasex24_depth(2)
+
         self.corner_depth = pr.corner_depth[self.corners]  # for corners we store just the depth
 
     def get_phase1_depth(self, position):
@@ -209,3 +215,43 @@ class CoordCube:
                     break
         return depth
 
+    def get_phasex24_depth(self, position):
+        # find initial distance from given position
+        if position == 0:
+            slicesorted = self.UD_slice_sorted
+            flip = self.UD_flip
+            twist = self.UD_twist
+        elif position == 1:
+            slicesorted = self.RL_slice_sorted
+            flip = self.RL_flip
+            twist = self.RL_twist
+        else:
+            slicesorted = self.FB_slice_sorted
+            flip = self.FB_flip
+            twist = self.FB_twist
+
+        flipslicesorted = N_FLIP * slicesorted + flip
+        classidx = sy.flipslicesorted_classidx[flipslicesorted]
+        sym = sy.flipslicesorted_sym[flipslicesorted]
+        depth_mod3 = pr.get_flipslicesorted_twist_depth3(N_TWIST * classidx + sy.twist_conj[(twist << 4) + sym])
+
+        depth = 0
+        while flip != SOLVED or slicesorted != SOLVED or twist != SOLVED:
+            if depth_mod3 == 0:
+                depth_mod3 = 3
+            for m in Move:  # we can use the same m in all 3 rotational positions
+                twist1 = mv.twist_move[N_MOVE * twist + m]
+                flip1 = mv.flip_move[N_MOVE * flip + m]
+                slicesorted1 = mv.slice_sorted_move[N_MOVE * slicesorted + m]
+                flipslicesorted1 = N_FLIP * slicesorted1 + flip1
+                classidx1 = sy.flipslicesorted_classidx[flipslicesorted1]
+                sym = sy.flipslice_sym[flipslicesorted1]
+                if pr.get_flipslicesorted_twist_depth3(
+                        N_TWIST * classidx1 + sy.twist_conj[(twist1 << 4) + sym]) == depth_mod3 - 1:
+                    depth += 1
+                    twist = twist1
+                    flip = flip1
+                    slicesorted = slicesorted1
+                    depth_mod3 -= 1
+                    break
+        return depth

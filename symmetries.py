@@ -3,11 +3,12 @@
 from os import path
 import array as ar
 import cubie as cb
-from defs import N_TWIST, N_SYM, N_SYM_D4h, N_FLIP, N_SLICE, N_CORNERS, N_MOVE, N_FLIPSLICE_CLASS
+from defs import N_TWIST, N_SYM, N_SYM_D4h, N_FLIP, N_SLICE, N_SLICE_SORTED, N_MOVE, \
+    N_FLIPSLICE_CLASS, N_FLIPSLICESORTED_CLASS, BIG_TABLE
 from enums import Corner as Co, Edge as Ed, Move as Mv, BS
 
 INVALID = 65535
-
+INVALID32 = 4294967295
 #  #################### Permutations and orientation changes of the basic symmetries ###################################
 
 # 120° clockwise rotation around the long diagonal URF-DBL
@@ -82,7 +83,7 @@ for s in range(N_SYM):
         ss.multiply(symCube[inv_idx[s]])  # s*m*s^-1
         for m2 in Mv:
             if ss == cb.moveCube[m2]:
-                conj_move[N_MOVE*s + m] = m2
+                conj_move[N_MOVE * s + m] = m2
 ########################################################################################################################
 
 # ###### Generate the phase 1 table for the conjugation of the twist t by a symmetry s. twist_conj[t, s] = s*t*s^-1 ####
@@ -113,7 +114,7 @@ else:
 fh.close()
 # ######################################################################################################################
 
-# ############## Generate the tables to handle the symmetry reduced flip-slice coordinate in  phase 1 ##################
+# ############## Generate the tables to handle the symmetry reduced flip-slice coordinate ##############################
 fname1 = "fs_classidx"
 fname2 = "fs_sym"
 fname3 = "fs_rep"
@@ -177,6 +178,73 @@ else:
     flipslice_rep = ar.array('L')
     flipslice_rep.fromfile(fh, N_FLIPSLICE_CLASS)
     fh.close()
+
+
+# ############## Generate the tables to handle the symmetry reduced flip-slicesorted coordinate ########################
+if BIG_TABLE:  # load or generate only when BIG_TABLE is defined True
+    fname1 = "fs24_classidx"
+    fname2 = "fs24_sym"
+    fname3 = "fs24_rep"
+    if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
+        print("creating " + "flipslicesorted sym-tables...")
+        flipslicesorted_classidx = ar.array('L', [INVALID32] * (N_FLIP * N_SLICE_SORTED))  # idx -> classidx
+        flipslicesorted_sym = ar.array('B', [0] * (N_FLIP * N_SLICE_SORTED))  # idx -> symmetry
+        flipslicesorted_rep = ar.array('L', [0] * N_FLIPSLICESORTED_CLASS)  # classidx -> idx of representant ANPASSEN
+
+        classidx = 0
+        cc = cb.CubieCube()
+        for slc in range(N_SLICE_SORTED):
+            cc.set_slice_sorted(slc)
+            for flip in range(N_FLIP):
+                cc.set_flip(flip)
+                idx = N_FLIP * slc + flip
+                if (idx + 1) % 40000 == 0:
+                    print('.', end='', flush=True)
+                if (idx + 1) % 3200000 == 0:
+                    print('')
+
+                if flipslicesorted_classidx[idx] == INVALID32:
+                    flipslicesorted_classidx[idx] = classidx
+                    flipslicesorted_sym[idx] = 0
+                    flipslicesorted_rep[classidx] = idx
+                else:
+                    continue
+                for s in range(N_SYM_D4h):  # conjugate representant by all 16 symmetries
+                    ss = cb.CubieCube(symCube[inv_idx[s]].cp, symCube[inv_idx[s]].co, symCube[inv_idx[s]].ep,
+                                      symCube[inv_idx[s]].eo)  # copy cube
+                    ss.edge_multiply(cc)
+                    ss.edge_multiply(symCube[s])  # s^-1*cc*s
+                    idx_new = N_FLIP * ss.get_slice_sorted() + ss.get_flip()
+                    if flipslicesorted_classidx[idx_new] == INVALID32:
+                        flipslicesorted_classidx[idx_new] = classidx
+                        flipslicesorted_sym[idx_new] = s
+                classidx += 1
+
+        print('')
+        fh = open(fname1, 'wb')
+        flipslicesorted_classidx.tofile(fh)
+        fh.close()
+        fh = open(fname2, 'wb')
+        flipslicesorted_sym.tofile(fh)
+        fh.close()
+        fh = open(fname3, 'wb')
+        flipslicesorted_rep.tofile(fh)
+        fh.close()
+
+    else:
+        print("loading " + "flipslicesorted sym-tables...")
+
+        fh = open(fname1, 'rb')
+        flipslicesorted_classidx = ar.array('L')
+        flipslicesorted_classidx.fromfile(fh, N_FLIP * N_SLICE_SORTED)
+        fh.close()
+        fh = open(fname2, 'rb')
+        flipslicesorted_sym = ar.array('B')
+        flipslicesorted_sym.fromfile(fh, N_FLIP * N_SLICE_SORTED)
+        fh.close()
+        fh = open(fname3, 'rb')
+        flipslicesorted_rep = ar.array('L')
+        flipslicesorted_rep.fromfile(fh, N_FLIPSLICESORTED_CLASS)
+        fh.close()
+
 ########################################################################################################################
-
-
