@@ -111,6 +111,10 @@ class CoordCube:
             self.UD_phase1_depth = self.get_phase1_depth(0)  # since we store the depth mod 3, retrieving the initial
             self.RL_phase1_depth = self.get_phase1_depth(1)  # absolute depth is a bit involved
             self.FB_phase1_depth = self.get_phase1_depth(2)
+            if defs.BIG_TABLE:
+                self.UD_phasex24_depth = self.get_phasex24_depth(0)
+                self.RL_phasex24_depth = self.get_phasex24_depth(1)
+                self.FB_phasex24_depth = self.get_phasex24_depth(2)
 
             self.corner_depth = pr.corner_depth[self.corners]  # for corners we store just the depth
 
@@ -134,7 +138,11 @@ class CoordCube:
 
         return s
 
-    def move(self, m):  # new coordinates when applying move m
+    def move(self, m):
+        """
+        Update coordinates when move m is applied
+        :param m: Move to be applied
+        """
         self.corners = mv.corners_move[N_MOVE * self.corners + m]
 
         self.UD_twist = mv.twist_move[N_MOVE * self.UD_twist + m]
@@ -175,7 +183,11 @@ class CoordCube:
         self.corner_depth = pr.corner_depth[self.corners]  # for corners we store just the depth
 
     def get_phase1_depth(self, position):
-        # find initial distance from given position
+        """
+        Compute the distance to the cube subgroup H where flip=slice=twist=0
+        :param position: The current cube state
+        :return: The distance to H
+        """
         if position == 0:
             slice_ = self.UD_slice_sorted // N_PERM_4
             flip = self.UD_flip
@@ -216,6 +228,11 @@ class CoordCube:
         return depth
 
     def get_phasex24_depth(self, position):
+        """
+         Compute the distance to the cube subgroup  where flip=slicesorted=twist=0
+        :param position:
+        :return:
+        """
         # find initial distance from given position
         if position == 0:
             slicesorted = self.UD_slice_sorted
@@ -245,7 +262,7 @@ class CoordCube:
                 slicesorted1 = mv.slice_sorted_move[N_MOVE * slicesorted + m]
                 flipslicesorted1 = N_FLIP * slicesorted1 + flip1
                 classidx1 = sy.flipslicesorted_classidx[flipslicesorted1]
-                sym = sy.flipslice_sym[flipslicesorted1]
+                sym = sy.flipslicesorted_sym[flipslicesorted1]
                 if pr.get_flipslicesorted_twist_depth3(
                         N_TWIST * classidx1 + sy.twist_conj[(twist1 << 4) + sym]) == depth_mod3 - 1:
                     depth += 1

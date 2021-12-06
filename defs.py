@@ -40,4 +40,4 @@ N_SYM = 48  # number of cube symmetries of full group Oh
 N_SYM_D4h = 16  # Number of symmetries of subgroup D4h
 ########################################################################################################################
 
-BIG_TABLE = False  # Recommended only with PyPy. With CPython the table creation takes very long.
+BIG_TABLE = True  # With CPython the table creation takes very long if BIG_TABLE = True. Consider to use PyPy instead.

@@ -187,6 +187,7 @@ if BIG_TABLE:  # load or generate only when BIG_TABLE is defined True
     fname3 = "fs24_rep"
     if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
         print("creating " + "flipslicesorted sym-tables...")
+        print("This may take about 15 minutes.")
         flipslicesorted_classidx = ar.array('L', [INVALID32] * (N_FLIP * N_SLICE_SORTED))  # idx -> classidx
         flipslicesorted_sym = ar.array('B', [0] * (N_FLIP * N_SLICE_SORTED))  # idx -> symmetry
         flipslicesorted_rep = ar.array('L', [0] * N_FLIPSLICESORTED_CLASS)  # classidx -> idx of representant ANPASSEN

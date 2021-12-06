@@ -158,6 +158,10 @@ class CubieCube:
         self.corner_multiply(b)
         self.edge_multiply(b)
 
+    def move(self, m: Move):
+        """ Apply move m to CubieCube """
+        self.multiply(moveCube[m])
+
     def inv_cubie_cube(self, d):
         """Store the inverse of this cubie cube in d."""
         for e in Ed:
@@ -210,7 +214,7 @@ class CubieCube:
                 s.append(j + N_SYM)
         return s
 
-    # ###################################### coordinates for phase 1 and 2 #################################################
+    # ############################ functions to get and set coordinates ################################################
     def get_twist(self):
         """Get the twist of the 8 corners. 0 <= twist < 2187 in phase 1, twist = 0 in phase 2."""
         ret = 0
@@ -324,9 +328,6 @@ class CubieCube:
                 x += 1
 
 
-    def move(self, m: Move):
-        self.multiply(moveCube[m])  # Apply move to CubieCube
-
     def get_corners(self):
         """Get the permutation of the 8 corners.
             0 <= corners < 40320 defined but unused in phase 1, 0 <= corners < 40320 in phase 2,
@@ -350,8 +351,8 @@ class CubieCube:
                 rotate_right(self.cp, 0, j)
                 k -= 1
 
-
-    # ############################################ other usefull functions #################################################
+    # ##################################################################################################################
+    # ############################################ other usefull functions #############################################
     def randomize(self):
         """Generate a random cube. The probability is the same for all possible states."""
 

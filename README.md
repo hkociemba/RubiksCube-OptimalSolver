@@ -19,25 +19,29 @@ and was the first who computed optimal solutions to 10 random cubes. The pruning
 the program generated about 700.000 nodes/s. The number of nodes for a full depth 17 search which had to be generated
 were about 120.000.000.000 and took 2 days.
 
-Michael Reid 1997 https://www.cflmath.com/Rubik/optimal_solver.html proposed the method implemented here and he used the
-pruning table for the first phase of the two-phase algorithm. By reducing the table size by 16 of the 48 cube symmetries and
-applying this pruning table simultaneously in three directions he got a much more powerful heuristics with the phase 1 
-pruning table which has only a size of only 34 MB in the implementation given here.  
+Michael Reid 1997 https://www.cflmath.com/Rubik/optimal_solver.html proposed a superior method. He used the
+pruning table for the first phase of the two-phase algorithm. Since the target group of phase 1 exhibits 16-fold 
+symmetry of the D4h point group the corresponding pruning table also can be compressed by a factor about 16. 
+Moreover, it is possible to apply this pruning table simultaneously in three directions which increases the quality of
+the heuristics. 
 
-The number of nodes which needs to be generated for a full depth 17 search is much less compared to Korf's method and
-is only about 2.000.000.000. But with the standard CPython only about 150.000 nodes/s are done which is unsatisfactory.  
-With PyPy https://www.pypy.org/index.html we get more than 3.000.000 nodes/s and a full depth 17 search usually takes
-less than 15 minutes!
+We use Reid's approach with a pruning table size of 34 MB and alternatively a pruning table 24 times larger in size.
+The latter belongs to a target group where the four UD-slice edges are solved and all corner- and edge orientations are 0.
+This pruning table also can be applied in three directions amd then leaves only the corner permutation undetermined.
 
-## Conclusion
-Using pypy3 the majority of Rubik's cube can be solved within a reasonable time (minutes, hours) essentially using
-only the pruning table of phase 1 of the two-phase algorithm.
+The speed of the standard CPython is very slow compared to a compiled language. We alternatively also use PyPy 
+https://www.pypy.org/ which has a Just-in-Time compiler and compare the performance of the four possible combinations
+of pruning table size and Python version.  
+
 
 ## Usage
 Put the *.py files into your path and do an "import example" from the Python Console. This generates necessary tables
-(within a few minutes with pypy3) and a random cube. THe cube is solved showing information about the solving process.
+and solves a random cube. The cube is solved and information about the solving process are displayed.
 
-## Todo
-Implement a 24 times larger pruning table which takes into account also the 24 permutations of the 4 edges used for the
-"slice coordinate" of the two-phase algorithm.
+IMPORTANT: The constant BIG_TABLE in the file defs.py determines if you generate and use the
+big pruning table with a size of 794 MB or the small 34 MB pruning table. See the results below how table creation time
+and performance depend on this parameter.
 
+## Results
+
+work in progress...
