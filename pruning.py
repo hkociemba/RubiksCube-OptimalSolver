@@ -55,7 +55,7 @@ def create_phase1_prun_table():
     fname = "phase1_prun"
     if not path.isfile(fname):
         print("creating " + fname + " table...")
-        print('This may take half an hour or even longer, depending on the hardware.')
+        print('This may take 20 minutes or even longer, depending on the hardware.')
 
         flipslice_twist_depth3 = ar.array('L', [0xffffffff] * (total // 16 + 1))
         # #################### create table with the symmetries of the flipslice classes ###############################
@@ -91,15 +91,11 @@ def create_phase1_prun_table():
                 # backwards search is faster for depth >= 9
                 print('flipping to backwards search...')
                 backsearch = True
-            if depth < 8:
-                mult = 5  # controls the output a few lines below
-            else:
-                mult = 1
             idx = 0
             for fs_classidx in range(defs.N_FLIPSLICE_CLASS):
-                if (fs_classidx + 1) % (200 * mult) == 0:
+                if (fs_classidx + 1) % 200  == 0:
                     print('.', end='', flush=True)
-                if (fs_classidx + 1) % (16000 * mult) == 0:
+                if (fs_classidx + 1) % 16000  == 0:
                     print('')
 
                 twist = 0
@@ -178,7 +174,7 @@ def create_phase1x24_prun_table():
     fname = "phase1x24_prun"
     if not path.isfile(fname):
         print("creating " + fname + " table...")
-        print('This may take 12  hour or even longer, depending on the hardware and the Python version.')
+        print('This may take 8 hours or even longer, depending on the hardware and the Python version.')
         print('We recommend using PyPy instead of the standard CPython which gives a speedup by a factor of about 20.')
 
         flipslicesorted_twist_depth3 = ar.array('L', [0xffffffff] * (total // 16 + 1))

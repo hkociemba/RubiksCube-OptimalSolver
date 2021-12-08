@@ -16,13 +16,15 @@ fl = fc.to_string()  # fl holds the cube definition string. For the format see e
 print('Solve random cube with cube definition string ' + fl)
 print(sv.solve(fl))
 
-#other examples
+# random cubes used for performance testing
 
-#cubestr = 'UUUUUUUUURRRFRRRRRFFFLFRFFFDDDDDDDDDLLLLLFLLLBBBBBBBBB'
-#goalstr = 'UUUUUUUFURRRRRRRRRFUFFFFFDFDFDDDDDDDLLLLLLLLLBBBBBBBBB'
-#print(sv.solveto(cubestr, goalstr))
-
-#superflip = 'UBULURUFURURFRBRDRFUFLFRFDFDFDLDRDBDLULBLFLDLBUBRBLBDB'
-#print('Solve superflip cube with cube definition string ' + superflip)
-#print('This is really hard to solve optimally with Python and will take a couple of days...')
-#print(sv.solve(superflip)) #  this is hard one and needs 20 moves
+#f1='FLLUUBUUDLDUFRRBRLRFFUFDRLUDBRLDBRDBLBFFLLDFFBDUUBRDRB'
+#f2='BRBBUFFLLFLDBRDFLFRDDFFRBFRDDULDBBUURDDULULURLFURBRLBU'
+#f3='DBLRUULUUFFBLRDFLBBRLUFFDFRFDUDDUBBRLFURLBUBRDRFLBDDLR'
+#f4='UFBDULRLULDDRRRFDUBBBLFFLFLUUDRDFRBRRBDRLUFBFLLFUBDBUD'
+#f5='BLURULUBBDFRRRBDDDRDRRFFFURLFFUDLDDLUUFLLDFBUBBLRBUBFL'
+#f6='FRRRUFDBFLLBURBRBDLUUUFRDDFBRDDDDLDBUBFLLFULLUFRLBURFB'
+#f7='FBBDUFRDDBUURRRLFUDBLRFBBLUDFBUDRDULUFFDLUFLRRLRDBLFBL'
+#f8='UDFDULRFRBUUDRRLLLFRDRFBFRBDBDBDFDUUBFULLDRULLLRUBBBFF'
+#print('Solve random cube with cube definition string ' + f1)
+#print(sv.solve(f1))

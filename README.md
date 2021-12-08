@@ -42,6 +42,79 @@ IMPORTANT: The constant BIG_TABLE in the file defs.py determines if you generate
 big pruning table with a size of 794 MB or the small 34 MB pruning table. See the results below how table creation time
 and performance depend on this parameter.
 
-## Results
+## Performance results
 
-work in progress...
+We solved 8 random cubes in four scenarios. Actually the 8th was the first one which happened to have an
+optimal solution with 19 moves. All computations were done on a Windows 10 machine with an AMD Ryzen 7 3700X 3.59 GHz.   
+We distinguish between computations with the standard CPython interpreter and computation with PyPy (pypy3) which
+includes a Just-in-Time compiler and gives a speedup by a factor of about 10.   
+
+The 4 values in each row give the results of the combinations   
+PyPy + 794 MB table, PyPy + 34 MB table, CPython + 794 MB table, CPython + 34 MB table
+
+####Table creation time (to be performed only once)
+
+less than a minute, 13 minutes, 20 minutes, 8 hours
+
+#### Solving statistics
+
+
+position: FLLUUBUUDLDUFRRBRLRFFUFDRLUDBRLDBRDBLBFFLLDFFBDUUBRDRB   
+solution: R3 U1 R2 L2 U2 F2 R1 U3 L2 F2 R1 U3 F3 U2 D3 B2 U1 F1 (18f)  
+total time: 889 s, 4003 s   
+total number of nodes generated: 1.780.007.241, 13.253.835.078  
+average node generation: 2.001.483 nodes/s, 3.310.626 nodes/s 
+
+
+position: BRBBUFFLLFLDBRDFLFRDDFFRBFRDDULDBBUURDDULULURLFURBRLBU  
+solution: U2 D1 F3 R3 B3 L3 B3 D1 L3 B2 R3 F1 R3 B2 D1 B1 U1 L2 (18f)  
+total time: 346 s, 1634 s   
+total number of nodes generated: 657.376.166, 5.300.060.699  
+average node generation: 1.901.734 nodes/s, 3.243.053 nodes/s   
+
+
+position: DBLRUULUUFFBLRDFLBBRLUFFDFRFDUDDUBBRLFURLBUBRDRFLBDDLR  
+solution: U2 F2 L1 D2 B3 R1 B3 D3 F1 L2 F3 B2 L3 D3 F2 U3 R3 (17f)
+total time: 34 s, 164 s  
+total number of nodes generated: 65.991.378, 546.715.500    
+average node generation: 1916237 nodes/s, 3324125 nodes/s   
+
+
+position: UFBDULRLULDDRRRFDUBBBLFFLFLUUDRDFRBRRBDRLUFBFLLFUBDBUD  
+solution: L1 D3 R3 U1 R3 D2 F2 D1 L3 F1 B2 R1 D3 L2 F2 L3 U2 B1 (18f)  
+total time: 1564 s, 6899 s  
+total number of nodes generated: 3.094.714.173, 25.817.184.981  
+average node generation: 1.978.915 nodes/s, 3.742.045 nodes/s  
+
+
+
+position: BLURULUBBDFRRRBDDDRDRRFFFURLFFUDLDDLUUFLLDFBUBBLRBUBFL  
+solution: F1 R1 B3 U2 F1 U3 D1 B2 D2 L3 U2 R2 B2 L1 F3 R3 F2 R2 (18f)  
+total time: 630 s, 3109 s  
+total number of nodes generated: 1338106263, 10944349014  
+average node generation: 2123873 nodes/s, 3520198 nodes/s  
+
+
+
+position: FRRRUFDBFLLBURBRBDLUUUFRDDFBRDDDDLDBUBFLLFULLUFRLBURFB  
+solution: U2 D3 L3 F3 L3 D1 L1 U1 F2 U2 L3 B2 D1 L3 D1 B2 D2 B3 (18f) 
+total time: 354 s, 1460 s    
+total number of nodes generated: 645.578.747, 5.249.269.931    
+average node generation: 1.824.555 nodes/s 3.595.546 nodes/s   
+
+
+
+position: FBBDUFRDDBUURRRLFUDBLRFBBLUDFBUDRDULUFFDLUFLRRLRDBLFBL  
+solution: U2 D2 B2 R1 B1 R2 B2 R2 D3 L3 D2 L3 B3 R1 U1 F2 L3 F1 (18f)  
+total time: 472 s, 2261 s  
+total number of nodes generated: 921.263.634, 7.121.017.212  
+average node generation: 1953705 nodes/s, 3150087 nodes/s    
+
+
+position: UDFDULRFRBUUDRRLLLFRDRFBFRBDBDBDFDUUBFULLDRULLLRUBBBFF  
+solution: U1 L2 F2 L2 F3 U2 D3 B1 D3 F2 B3 R3 L2 D1 L2 B2 L3 B3 D3 (19f)   
+total time: 4473 s, 17343 s   
+total number of nodes generated: 8.042.012.221, 62.657.640.307    
+average node generation: 1.797.989 nodes/s, 3.612.882 nodes/s    
+ 
+ 
