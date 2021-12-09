@@ -26,5 +26,5 @@ print(sv.solve(fl))
 #f6='FRRRUFDBFLLBURBRBDLUUUFRDDFBRDDDDLDBUBFLLFULLUFRLBURFB'
 #f7='FBBDUFRDDBUURRRLFUDBLRFBBLUDFBUDRDULUFFDLUFLRRLRDBLFBL'
 #f8='UDFDULRFRBUUDRRLLLFRDRFBFRBDBDBDFDUUBFULLDRULLLRUBBBFF'
-#print('Solve random cube with cube definition string ' + f1)
-#print(sv.solve(f1))
+#print('Solve random cube with cube definition string ' + f3)
+#print(sv.solve(f3))

@@ -40,4 +40,11 @@ N_SYM = 48  # number of cube symmetries of full group Oh
 N_SYM_D4h = 16  # Number of symmetries of subgroup D4h
 ########################################################################################################################
 
-BIG_TABLE = False  # With CPython the table creation takes very long if BIG_TABLE = True. Consider to use PyPy instead.
+BIG_TABLE = True  # recommended for fast solving times.
+
+
+# Table creation times (AMD Ryzen 7 3700X 3.59 GHz):
+# PyPy + 794 MB table: 13 minutes
+# PyPy + 34 MB table: less than a minute
+# CPython + 794 MB table:  8 hours
+# CPython + 34 MB table: 20 minutes
