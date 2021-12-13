@@ -174,7 +174,7 @@ def create_phase1x24_prun_table():
     if not path.isfile(fname):
         print("creating " + fname + " table...")
         print('This may take 8 hours or even longer, depending on the hardware and the Python version.')
-        print('We recommend using PyPy instead of the standard CPython which gives a speedup by a factor of about 20.')
+        print('Using PyPy instead of CPython gives a table creation speedup by a factor of about 20.')
 
         flipslicesorted_twist_depth3 = ar.array('L', [0xffffffff] * (total // 16 + 1))
         # #################### create table with the symmetries of the flipslicesorted classes #########################

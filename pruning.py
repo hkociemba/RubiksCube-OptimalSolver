@@ -14,6 +14,7 @@ flipslice_twist_depth3 = None  # global variables, initialized during pruning ta
 flipslicesorted_twist_depth3 = None
 corner_depth = None
 
+
 # ####################### functions to extract or set values in the pruning tables #####################################
 
 
@@ -30,6 +31,7 @@ def set_flipslice_twist_depth3(ix, value):
     flipslice_twist_depth3[base] &= ~(3 << shift) & 0xffffffff
     flipslice_twist_depth3[base] |= value << shift
 
+
 def get_flipslicesorted_twist_depth3(ix):
     """get_fsst_depth3(ix) is *exactly* the number of moves % 3 to solve phase1x24 of a cube with index ix"""
     y = flipslicesorted_twist_depth3[ix // 16]
@@ -42,7 +44,6 @@ def set_flipslicesorted_twist_depth3(ix, value):
     base = ix >> 4
     flipslicesorted_twist_depth3[base] &= ~(3 << shift) & 0xffffffff
     flipslicesorted_twist_depth3[base] |= value << shift
-
 
 
 ########################################################################################################################
@@ -93,9 +94,9 @@ def create_phase1_prun_table():
                 backsearch = True
             idx = 0
             for fs_classidx in range(defs.N_FLIPSLICE_CLASS):
-                if (fs_classidx + 1) % 200  == 0:
+                if (fs_classidx + 1) % 200 == 0:
                     print('.', end='', flush=True)
-                if (fs_classidx + 1) % 16000  == 0:
+                if (fs_classidx + 1) % 16000 == 0:
                     print('')
 
                 twist = 0
@@ -175,7 +176,7 @@ def create_phase1x24_prun_table():
     if not path.isfile(fname):
         print("creating " + fname + " table...")
         print('This may take 8 hours or even longer, depending on the hardware and the Python version.')
-        print('We recommend using PyPy instead of the standard CPython which gives a speedup by a factor of about 20.')
+        print('Using PyPy instead of CPython gives a table creation speedup by a factor of about 20.')
 
         flipslicesorted_twist_depth3 = ar.array('L', [0xffffffff] * (total // 16 + 1))
         # #################### create table with the symmetries of the flipslicesorted classes #########################
@@ -214,7 +215,7 @@ def create_phase1x24_prun_table():
 
             idx = 0
             for fs_classidx in range(defs.N_FLIPSLICESORTED_CLASS):
-                if (fs_classidx + 1) % 20000  == 0:
+                if (fs_classidx + 1) % 20000 == 0:
                     print('.', end='', flush=True)
                 if (fs_classidx + 1) % 1600000 == 0:
                     print('')
@@ -323,7 +324,6 @@ def create_cornerprun_table():
     fh.close()
 
 
-
 # # array distance computes the new distance from the old_distance i and the new_distance_mod3 j. ######################
 # # We need this array because the pruning tables only store the distances mod 3. ######################################
 # # The advantage of storing distances mod 3 is that we need only 2 bit per entry to store values 0, 1 or 2 and still
@@ -332,12 +332,11 @@ def create_cornerprun_table():
 distance = ar.array('b', [0 for i in range(60)])
 for i in range(20):
     for j in range(3):
-        distance[3*i + j] = (i // 3) * 3 + j
+        distance[3 * i + j] = (i // 3) * 3 + j
         if i % 3 == 2 and j == 0:
             distance[3 * i + j] += 3
         elif i % 3 == 0 and j == 2:
             distance[3 * i + j] -= 3
-
 
 if defs.BIG_TABLE:
     create_phase1x24_prun_table()

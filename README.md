@@ -16,7 +16,7 @@ The time to optimally solve a cube then depends on two factors:
 
 Korf 1997 (Finding Optimal Solutions to Rubik’s Cube Using Pattern Databases) used a Sun Ultra-Spare Model 1 workstation
 and was the first who computed optimal solutions to 10 random cubes. The pruning tables had a size of about 80 MB and 
-the program generated about 700.000 nodes/s. The number of nodes for a full depth 17 search which had to be generated
+the program generated about 700,000 nodes/s. The number of nodes for a full depth 17 search which had to be generated
 were about 120,000,000,000 and the computation took 2 days.
 
 Michael Reid 1997 https://www.cflmath.com/Rubik/optimal_solver.html proposed a superior method. He used the

@@ -89,8 +89,9 @@ for s in range(N_SYM):
 # ###### Generate the phase 1 table for the conjugation of the twist t by a symmetry s. twist_conj[t, s] = s*t*s^-1 ####
 fname = "conj_twist"
 if not path.isfile(fname):
-    print('On the first run, several tables will be created. This takes about 1/2 hour or longer '
-          '(depending on the hardware).')
+    print('On the first run, several tables will be created. This may take 8 hours using CPython '
+          '(depending on the hardware). ')
+    print('Using PyPy reduces the time to about 15 minutes.')
     print('All tables are stored in ' + path.dirname(path.abspath(fname)))
     print()
     print("creating " + fname + " table...")
