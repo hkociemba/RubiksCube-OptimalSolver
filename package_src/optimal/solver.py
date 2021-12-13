@@ -1,12 +1,12 @@
 # ################### The SolverThread class solves implements the two phase algorithm #################################
-import face
-from defs import N_MOVE, N_FLIP, N_TWIST, N_PERM_4, BIG_TABLE
-import cubie
-import symmetries as sy
-import coord
-import enums as en
-import moves as mv
-import pruning as pr
+import optimal.face as face
+from optimal.defs import N_MOVE, N_FLIP, N_TWIST, N_PERM_4, BIG_TABLE
+import optimal.cubie as cubie
+import optimal.symmetries as sy
+import optimal.coord as coord
+import optimal.enums as en
+import optimal.moves as mv
+import optimal.pruning as pr
 import time
 
 solfound = False  # global variable, True if solution is found

@@ -1,10 +1,10 @@
 # ######################################### The cube on the coordinate level. ##########################################
-import cubie as cb
-from enums import Move
-import moves as mv
-import pruning as pr
-import symmetries as sy
-from defs import N_PERM_4, N_FLIP, N_TWIST, N_MOVE, BIG_TABLE
+import optimal.cubie as cb
+from optimal.enums import Move
+import optimal.moves as mv
+import optimal.pruning as pr
+import optimal.symmetries as sy
+from optimal.defs import N_PERM_4, N_FLIP, N_TWIST, N_MOVE, BIG_TABLE
 
 SOLVED = 0  # 0 is index of the solved state
 

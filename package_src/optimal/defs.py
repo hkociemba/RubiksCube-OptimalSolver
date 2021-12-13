@@ -1,6 +1,6 @@
 # ###################################### some definitions and constants ################################################
 
-from enums import Facelet as Fc, Color as Cl
+from optimal.enums import Facelet as Fc, Color as Cl
 
 # Map the corner positions to facelet positions.
 cornerFacelet = [[Fc.U9, Fc.R1, Fc.F3], [Fc.U7, Fc.F1, Fc.L3], [Fc.U1, Fc.L1, Fc.B3], [Fc.U3, Fc.B1, Fc.R3],

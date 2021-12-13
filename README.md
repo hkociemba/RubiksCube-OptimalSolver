@@ -1,6 +1,6 @@
 # RubiksCube-OptimalSolver
 ## Overview 
-This project tries to find out if an optimal solver for Rubik's cube in Python makes any sense. An optimal solver has to generate
+This project tried to find out if an optimal solver for Rubik's cube in Python makes any sense. An optimal solver has to generate
 in principle all possible solving maneuvers with increasing length until a solution is found. Since the increase of the
 maneuver length by 1 increases the number of maneuvers by a factor of about 13.3 the computation of all maneuvers of
 length 17 or 18 - which will be necessary for the majority of cube positions - is not possible.  
@@ -17,31 +17,49 @@ The time to optimally solve a cube then depends on two factors:
 Korf 1997 (Finding Optimal Solutions to Rubik’s Cube Using Pattern Databases) used a Sun Ultra-Spare Model 1 workstation
 and was the first who computed optimal solutions to 10 random cubes. The pruning tables had a size of about 80 MB and 
 the program generated about 700.000 nodes/s. The number of nodes for a full depth 17 search which had to be generated
-were about 120.000.000.000 and took 2 days.
+were about 120,000,000,000 and the computation took 2 days.
 
 Michael Reid 1997 https://www.cflmath.com/Rubik/optimal_solver.html proposed a superior method. He used the
 pruning table for the first phase of the two-phase algorithm. Since the target group of phase 1 exhibits 16-fold 
 symmetry of the D4h point group the corresponding pruning table also can be compressed by a factor about 16. 
 Moreover, it is possible to apply this pruning table simultaneously in three directions which increases the quality of
 the heuristics. 
+## Speeding up Python
+It became clear that using Reid's approach with a pruning table size of 34 MB is not best suited for Python.
+Today's hardware with several GB of RAM allows the usage of a pruning table 24 times larger which can compensate the
+relative slowness of the Python interpreter. We get a speedup by a factor of about 7 in this way.   
 
-We use Reid's approach with a pruning table size of 34 MB and alternatively a pruning table 24 times larger in size.
-The latter belongs to a target group where the four UD-slice edges are solved and all corner- and edge orientations are 0.
-This pruning table also can be applied in three directions amd then leaves only the corner permutation undetermined.
+This bigger pruning table belongs to a target subgroup where the four UD-slice edges are not only in their slice but
+also in their correct position. The edge and corner orientation also have to be 0, like in the phase 1 subgroup.
+The bigger pruning table also can be applied in three directions and the intersection of the three subgroups is the
+group where only the corner permutations still are not fixed.
 
-The speed of the standard CPython is very slow compared to a compiled language. We alternatively also use PyPy 
-https://www.pypy.org/ which has a Just-in-Time compiler and compare the performance of the four possible combinations
-of pruning table size and Python version.  
+Another performance boost is given by the replacement of the standard CPython with PyPy (https://www.pypy.org/) which
+has a Just-in-Time compiler and gives an additional speedup by a factor of about 13. We strongly recommend to use PyPy,
+the combined overall performance boost factor then is about 100. 
 
 
 ## Usage
-Put the *.py files into the path of your project and do  
+The package is published on PyPI and can be installed with
+
+```$ pip install RubikOptimal``` 
+
+or using PyPy 
+
+```$ pypy3 -m pip install RubikOptimal```
+
+Once installed, you can import the module optimal.solver into your code:
+
 ```python
->>> import solver  as sv
+>>> import optimal.solver as sv
 ```
-from the Python Console.   
-A cube is defined by its cube definition string. A solved cube has the string
-'UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB'.   
+There are several tables which must be created, but only on the first run. These need about 955 MB of disk space, and it
+takes about 8 hour or even longer to create them with CPython and about 15 minutes with PyPy, depending on the used 
+hardware.
+But only with these computational relative expensive tables the algorithm works highly effective and will find optimal
+solutions to Rubik's cube in a decent time.
+
+A cube is defined by its cube definition string. A solved cube has the string 'UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB'.   
 ```python
 >>> cubestring = 'DUUBULDBFRBFRRULLLBRDFFFBLURDBFDFDRFRULBLUFDURRBLBDUDL'
 ```
@@ -49,67 +67,52 @@ See https://github.com/hkociemba/RubiksCube-TwophaseSolver/blob/master/enums.py 
 ```python
 >>> sv.solve(cubestring)
 ```
-This solves the cube described by the definition string optimally and displays information about the solving process.
+This optimally solves the cube described by the definition string. After a couple of minutes (using PyPy) we get
+```python
+'U1 B2 D3 B3 R3 L3 U1 L2 B2 R1 D3 R3 B1 L3 U2 B2 R1 D3 (18f*)'
+```
+U, R, F, D, L and B denote the Up, Right, Front, Down, Left and Back face of the cube. 1, 2, and 3 denote a 90°, 180°
+and 270° clockwise rotation of the corresponding face. (18f*) means that the solution has 18 moves in the face turn
+metric and the star indicates that it is an optimal solution.
 
-IMPORTANT: The constant BIG_TABLE in the file defs.py determines whether you generate and use the
-big pruning table with a size of 794 MB or the small 34 MB pruning table. See the results below how table creation time
-and performance depend on this parameter. The default is BIG_TABLE = True.
+You also have the possibility to solve a cube not to the solved position but to some favorite pattern represented by
+goalstring.
+```python
+>>> sv.solveto(cubestring,goalstring)
+```
+will find an optimal solution for this transformation.   
+
+You can test the performance of the algorithm on your machine with something similar to
+```python
+>>> import optimal.performance as pf
+>>> pf.test(10)
+```
+This will for example generate 10 random cubes and gives information about the solving process. 
 
 ## Performance results
 
-We solved 8 random cubes in four scenarios. Actually the 8th was the first one which happened to have an
-optimal solution with 19 moves. All computations were done on a Windows 10 machine with an AMD Ryzen 7 3700X 3.59 GHz.   
-We distinguish between computations with the standard CPython interpreter and computation with PyPy (pypy3) which
-includes a Just-in-Time compiler and gives a speedup by a factor of about 10.   
+We solved 10 random cubes with CPython and with PyPy (pypy3), the latter including a Just-in-Time compiler which gives a
+speedup by a factor of more than 10. All computations were done on a Windows 10 machine with an AMD Ryzen 7 3700X 3.59 GHz.
 
-####Table creation time (to be performed only once)
-PyPy + 794 MB table: 13 minutes  
-PyPy + 34 MB table: less than a minute  
-CPython + 794 MB table:  8 hours  
-CPython + 34 MB table: 20 minutes   
+#### Table creation time (to be performed only once)
+PyPy: 13 minutes
+CPython:  8 hours   
 
 #### Solving statistics
 
-We created 8 random cubes and solved them using the 4 different scenarios. The solution lengths were 1 x 17 moves,
-6 x 18 moves and 1 x 19  moves.  
-
- 1. It shows that in all cases the number of nodes which need to be visited until an optimal solution is found is between 
-7.3 and 8.4 times higher with the 34 MB table compared to the 794 MB table. This does not seem to depend on the solution
-length.  
- 2. The highest node generation rate is achieved with PyPy and the 34 MB table with about 3.400.000 nodes/s. With the 794 MB
-table it drops to about 2.000.000 nodes/s. We think this is the result of the 32 MB L3-cache which leads to much more
-cache misses with the large table.
-The node generation rate with CPython is relatively poor compared with PyPy. It is only about 155.000 nodes/s with the 
-34 MB table and about 146.000 nodes/s with the 784 MB table. So here the impact of the large table is much less. 
-
-Combining 1. and 2. and setting the performance index of the combination CPython + 34 MB table to 1 we get the following
-performance indices:
-
-PyPy + 794 MB table: about 100  
-PyPy + 34 MB table: about 22  
-CPython + 794 MB table:  about 7 
-CPython + 34 MB table: 1 
-
-Here the solution for the 17 move solve, the four numbers in the row sorted by decreasing performance index:   
-
-position: DBLRUULUUFFBLRDFLBBRLUFFDFRFDUDDUBBRLFURLBUBRDRFLBDDLR  
-solution: U2 F2 L1 D2 B3 R1 B3 D3 F1 L2 F3 B2 L3 D3 F2 U3 R3 (17f)  
-total time: 34 s, 164 s, 444 s, 3493 s  
-total number of nodes generated: 65,991,378, 546,715,500, 65,991,378, 546,715,500    
-average node generation: 1,916,237 nodes/s, 3,324,125 nodes/s, 148,379 nodes/s, 156,535 nodes/s   
-
-And here the solution for the 19 move solve, we only used PyPy and estimated the CPython total time:   
-
-position: UDFDULRFRBUUDRRLLLFRDRFBFRBDBDBDFDUUBFULLDRULLLRUBBBFF  
-solution: U1 L2 F2 L2 F3 U2 D3 B1 D3 F2 B3 R3 L2 D1 L2 B2 L3 B3 D3 (19f)   
-total time: 4,473 s, 17,343 s, 55,000 s (estimated), 400,000 s (estimated)    
-total number of nodes generated: 8,042,012,221, 62,657,640,307    
-average node generation: 1,797,989 nodes/s, 3,612,882 nodes/s 
+A full depth 17 search typically takes about 1/2 hour using CPython and less than 3 minutes with PyPy.   
+The number of nodes that have to be generated for a full depth 17 search has an average of 280,000,000.
+This is more than 400 times less than the 120,000,000,000 in Korf's approach who of course did not have 
+1 GB of RAM in 1997 but only about 100 MB.
+The average time to solve 10 random cubes (1x17 moves, 7x18 moves and 2x19 moves) with PyPy was about 20 min/cube
+and ranged from 36 s for the 17 move solution to 2447 s and 4389 s for the two 19 move solutions.   
+The program generated about 1.8 million nodes/s.
 
 #### Conclusion:
-Optimally solving Rubik's Cube with Python using the standard CPython interpreter and the 34 MB table cannot be
-recommended since the solution time can take several days in worst case. With PyPy and the 794 MB table the computation
-time may even exceed the performance of some other optimal solvers written in a compiled language.
+Optimally solving Rubik's Cube with Python using the standard CPython interpreter is not recommended.
+With PyPy and the 794 MB table the computation for optimally solving a Rubik's cube in Python is done within 
+minutes up to a couple of hours.
+
 
 
  

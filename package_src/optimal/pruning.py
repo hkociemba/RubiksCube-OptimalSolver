@@ -1,13 +1,12 @@
 # ##################### The pruning tables cut the search tree during the search. ######################################
 # ############ The pruning values are stored modulo 3 for phase 1 table which saves a lot of memory. ###################
 
-import defs
-import enums
-import moves as mv
-import symmetries as sy
-import cubie as cb
+import optimal.defs as defs
+import optimal.enums as enums
+import optimal.moves as mv
+import optimal.symmetries as sy
+import optimal.cubie as cb
 from os import path
-import time
 import array as ar
 
 flipslice_twist_depth3 = None  # global variables, initialized during pruning table creation
