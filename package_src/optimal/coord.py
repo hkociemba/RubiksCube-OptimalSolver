@@ -4,7 +4,7 @@ from optimal.enums import Move
 import optimal.moves as mv
 import optimal.pruning as pr
 import optimal.symmetries as sy
-from optimal.defs import N_PERM_4, N_FLIP, N_TWIST, N_MOVE, BIG_TABLE
+from optimal.defs import N_PERM_4, N_FLIP, N_TWIST, N_MOVE
 
 SOLVED = 0  # 0 is index of the solved state
 
@@ -65,9 +65,12 @@ class CoordCube:
             self.FB_flip = SOLVED  # flip of edges
             self.FB_slice_sorted = SOLVED  # Position of UR, DR, DL, UL edges (<11880)
 
-            self.UD_phase1_depth = 0
-            self.RL_phase1_depth = 0
-            self.FB_phase1_depth = 0
+
+                self.UD_phasex24_depth = 0
+                self.RL_phasex24_depth = 0
+                self.FB_phasex24_depth = 0
+
+
 
             self.corner_depth = 0
         else:
@@ -107,14 +110,9 @@ class CoordCube:
             self.FB_flipslice_sym = sy.flipslice_sym[N_FLIP * (self.FB_slice_sorted // N_PERM_4) + self.FB_flip]
             self.FB_flipslice_rep = sy.flipslice_rep[self.FB_flipslice_clsidx]
 
-            if BIG_TABLE:
                 self.UD_phasex24_depth = self.get_phasex24_depth(0)  # since we store the depth mod 3, retrieving the
                 self.RL_phasex24_depth = self.get_phasex24_depth(1)  # initial absolute depth is a bit involved
                 self.FB_phasex24_depth = self.get_phasex24_depth(2)
-            else:
-                self.UD_phase1_depth = self.get_phase1_depth(0)
-                self.RL_phase1_depth = self.get_phase1_depth(1)
-                self.FB_phase1_depth = self.get_phase1_depth(2)
 
             self.corner_depth = pr.corner_depth[self.corners]  # for corners we store just the depth
 
@@ -171,61 +169,11 @@ class CoordCube:
         self.FB_flipslice_sym = sy.flipslice_sym[N_FLIP * (self.FB_slice_sorted // N_PERM_4) + self.FB_flip]
         self.FB_flipslice_rep = sy.flipslice_rep[self.FB_flipslice_clsidx]
 
-        self.UD_phase1_depth = self.get_phase1_depth(0)  # since we store the depth mod 3, retrieving the initial
-        self.RL_phase1_depth = self.get_phase1_depth(1)  # absolute depth is a bit involved
-        self.FB_phase1_depth = self.get_phase1_depth(2)
-
-        if BIG_TABLE:
-            self.UD_phasex24_depth = self.get_phasex24_depth(0)
-            self.RL_phasex24_depth = self.get_phasex24_depth(1)
-            self.FB_phasex24_depth = self.get_phasex24_depth(2)
+        self.UD_phasex24_depth = self.get_phasex24_depth(0)
+        self.RL_phasex24_depth = self.get_phasex24_depth(1)
+        self.FB_phasex24_depth = self.get_phasex24_depth(2)
 
         self.corner_depth = pr.corner_depth[self.corners]  # for corners we store just the depth
-
-    def get_phase1_depth(self, position):
-        """
-        Compute the distance to the cube subgroup H where flip=slice=twist=0
-        :param position: The current cube state
-        :return: The distance to H
-        """
-        if position == 0:
-            slice_ = self.UD_slice_sorted // N_PERM_4
-            flip = self.UD_flip
-            twist = self.UD_twist
-        elif position == 1:
-            slice_ = self.RL_slice_sorted // N_PERM_4
-            flip = self.RL_flip
-            twist = self.RL_twist
-        else:
-            slice_ = self.FB_slice_sorted // N_PERM_4
-            flip = self.FB_flip
-            twist = self.FB_twist
-
-        flipslice = N_FLIP * slice_ + flip
-        classidx = sy.flipslice_classidx[flipslice]
-        sym = sy.flipslice_sym[flipslice]
-        depth_mod3 = pr.get_flipslice_twist_depth3(N_TWIST * classidx + sy.twist_conj[(twist << 4) + sym])
-
-        depth = 0
-        while flip != SOLVED or slice_ != SOLVED or twist != SOLVED:
-            if depth_mod3 == 0:
-                depth_mod3 = 3
-            for m in Move:  # we can use the same m in all 3 rotational positions
-                twist1 = mv.twist_move[N_MOVE * twist + m]
-                flip1 = mv.flip_move[N_MOVE * flip + m]
-                slice1 = mv.slice_sorted_move[N_MOVE * slice_ * N_PERM_4 + m] // N_PERM_4  # we may set perm=0 here
-                flipslice1 = N_FLIP * slice1 + flip1
-                classidx1 = sy.flipslice_classidx[flipslice1]
-                sym = sy.flipslice_sym[flipslice1]
-                if pr.get_flipslice_twist_depth3(
-                        N_TWIST * classidx1 + sy.twist_conj[(twist1 << 4) + sym]) == depth_mod3 - 1:
-                    depth += 1
-                    twist = twist1
-                    flip = flip1
-                    slice_ = slice1
-                    depth_mod3 -= 1
-                    break
-        return depth
 
     def get_phasex24_depth(self, position):
         """

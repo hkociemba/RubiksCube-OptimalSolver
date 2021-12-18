@@ -338,8 +338,6 @@ for i in range(20):
         elif i % 3 == 0 and j == 2:
             distance[3 * i + j] -= 3
 
-if defs.BIG_TABLE:
-    create_phase1x24_prun_table()
-else:
-    create_phase1_prun_table()
+
+create_phase1x24_prun_table()
 create_cornerprun_table()

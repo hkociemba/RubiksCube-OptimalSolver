@@ -39,13 +39,3 @@ N_CORNERS_CLASS = 2768  # number of equivalence classes concerning symmetry grou
 N_SYM = 48  # number of cube symmetries of full group Oh
 N_SYM_D4h = 16  # Number of symmetries of subgroup D4h
 ########################################################################################################################
-
-BIG_TABLE = True  # Default value and recommended.
-# With BIG_TABLE = False the 34 MB pruning table is used which leads to a severe performance drop.
-
-
-# Table creation times (AMD Ryzen 7 3700X 3.59 GHz):
-# PyPy + 794 MB table: 13 minutes
-# PyPy + 34 MB table: less than a minute
-# CPython + 794 MB table:  8 hours
-# CPython + 34 MB table: 20 minutes

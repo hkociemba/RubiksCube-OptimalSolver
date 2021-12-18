@@ -4,7 +4,7 @@ from os import path
 import array as ar
 import optimal.cubie as cb
 from optimal.defs import N_TWIST, N_SYM, N_SYM_D4h, N_FLIP, N_SLICE, N_SLICE_SORTED, N_MOVE, \
-    N_FLIPSLICE_CLASS, N_FLIPSLICESORTED_CLASS, BIG_TABLE
+    N_FLIPSLICE_CLASS, N_FLIPSLICESORTED_CLASS
 from optimal.enums import Corner as Co, Edge as Ed, Move as Mv, BS
 
 INVALID = 65535
@@ -182,71 +182,71 @@ else:
 
 
 # ############## Generate the tables to handle the symmetry reduced flip-slicesorted coordinate ########################
-if BIG_TABLE:  # load or generate only when BIG_TABLE is defined True
-    fname1 = "fs24_classidx"
-    fname2 = "fs24_sym"
-    fname3 = "fs24_rep"
-    if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
-        print("creating " + "flipslicesorted sym-tables...")
-        print("This may take about 15 minutes.")
-        flipslicesorted_classidx = ar.array('L', [INVALID32] * (N_FLIP * N_SLICE_SORTED))  # idx -> classidx
-        flipslicesorted_sym = ar.array('B', [0] * (N_FLIP * N_SLICE_SORTED))  # idx -> symmetry
-        flipslicesorted_rep = ar.array('L', [0] * N_FLIPSLICESORTED_CLASS)  # classidx -> idx of representant ANPASSEN
 
-        classidx = 0
-        cc = cb.CubieCube()
-        for slc in range(N_SLICE_SORTED):
-            cc.set_slice_sorted(slc)
-            for flip in range(N_FLIP):
-                cc.set_flip(flip)
-                idx = N_FLIP * slc + flip
-                if (idx + 1) % 40000 == 0:
-                    print('.', end='', flush=True)
-                if (idx + 1) % 3200000 == 0:
-                    print('')
+fname1 = "fs24_classidx"
+fname2 = "fs24_sym"
+fname3 = "fs24_rep"
+if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
+    print("creating " + "flipslicesorted sym-tables...")
+    print("This may take about 15 minutes.")
+    flipslicesorted_classidx = ar.array('L', [INVALID32] * (N_FLIP * N_SLICE_SORTED))  # idx -> classidx
+    flipslicesorted_sym = ar.array('B', [0] * (N_FLIP * N_SLICE_SORTED))  # idx -> symmetry
+    flipslicesorted_rep = ar.array('L', [0] * N_FLIPSLICESORTED_CLASS)  # classidx -> idx of representant ANPASSEN
 
-                if flipslicesorted_classidx[idx] == INVALID32:
-                    flipslicesorted_classidx[idx] = classidx
-                    flipslicesorted_sym[idx] = 0
-                    flipslicesorted_rep[classidx] = idx
-                else:
-                    continue
-                for s in range(N_SYM_D4h):  # conjugate representant by all 16 symmetries
-                    ss = cb.CubieCube(symCube[inv_idx[s]].cp, symCube[inv_idx[s]].co, symCube[inv_idx[s]].ep,
-                                      symCube[inv_idx[s]].eo)  # copy cube
-                    ss.edge_multiply(cc)
-                    ss.edge_multiply(symCube[s])  # s^-1*cc*s
-                    idx_new = N_FLIP * ss.get_slice_sorted() + ss.get_flip()
-                    if flipslicesorted_classidx[idx_new] == INVALID32:
-                        flipslicesorted_classidx[idx_new] = classidx
-                        flipslicesorted_sym[idx_new] = s
-                classidx += 1
+    classidx = 0
+    cc = cb.CubieCube()
+    for slc in range(N_SLICE_SORTED):
+        cc.set_slice_sorted(slc)
+        for flip in range(N_FLIP):
+            cc.set_flip(flip)
+            idx = N_FLIP * slc + flip
+            if (idx + 1) % 40000 == 0:
+                print('.', end='', flush=True)
+            if (idx + 1) % 3200000 == 0:
+                print('')
 
-        print('')
-        fh = open(fname1, 'wb')
-        flipslicesorted_classidx.tofile(fh)
-        fh.close()
-        fh = open(fname2, 'wb')
-        flipslicesorted_sym.tofile(fh)
-        fh.close()
-        fh = open(fname3, 'wb')
-        flipslicesorted_rep.tofile(fh)
-        fh.close()
+            if flipslicesorted_classidx[idx] == INVALID32:
+                flipslicesorted_classidx[idx] = classidx
+                flipslicesorted_sym[idx] = 0
+                flipslicesorted_rep[classidx] = idx
+            else:
+                continue
+            for s in range(N_SYM_D4h):  # conjugate representant by all 16 symmetries
+                ss = cb.CubieCube(symCube[inv_idx[s]].cp, symCube[inv_idx[s]].co, symCube[inv_idx[s]].ep,
+                                  symCube[inv_idx[s]].eo)  # copy cube
+                ss.edge_multiply(cc)
+                ss.edge_multiply(symCube[s])  # s^-1*cc*s
+                idx_new = N_FLIP * ss.get_slice_sorted() + ss.get_flip()
+                if flipslicesorted_classidx[idx_new] == INVALID32:
+                    flipslicesorted_classidx[idx_new] = classidx
+                    flipslicesorted_sym[idx_new] = s
+            classidx += 1
 
-    else:
-        print("loading " + "flipslicesorted sym-tables...")
+    print('')
+    fh = open(fname1, 'wb')
+    flipslicesorted_classidx.tofile(fh)
+    fh.close()
+    fh = open(fname2, 'wb')
+    flipslicesorted_sym.tofile(fh)
+    fh.close()
+    fh = open(fname3, 'wb')
+    flipslicesorted_rep.tofile(fh)
+    fh.close()
 
-        fh = open(fname1, 'rb')
-        flipslicesorted_classidx = ar.array('L')
-        flipslicesorted_classidx.fromfile(fh, N_FLIP * N_SLICE_SORTED)
-        fh.close()
-        fh = open(fname2, 'rb')
-        flipslicesorted_sym = ar.array('B')
-        flipslicesorted_sym.fromfile(fh, N_FLIP * N_SLICE_SORTED)
-        fh.close()
-        fh = open(fname3, 'rb')
-        flipslicesorted_rep = ar.array('L')
-        flipslicesorted_rep.fromfile(fh, N_FLIPSLICESORTED_CLASS)
-        fh.close()
+else:
+    print("loading " + "flipslicesorted sym-tables...")
+
+    fh = open(fname1, 'rb')
+    flipslicesorted_classidx = ar.array('L')
+    flipslicesorted_classidx.fromfile(fh, N_FLIP * N_SLICE_SORTED)
+    fh.close()
+    fh = open(fname2, 'rb')
+    flipslicesorted_sym = ar.array('B')
+    flipslicesorted_sym.fromfile(fh, N_FLIP * N_SLICE_SORTED)
+    fh.close()
+    fh = open(fname3, 'rb')
+    flipslicesorted_rep = ar.array('L')
+    flipslicesorted_rep.fromfile(fh, N_FLIPSLICESORTED_CLASS)
+    fh.close()
 
 ########################################################################################################################

@@ -352,6 +352,7 @@ class CubieCube:
                 k -= 1
 
     # ##################################################################################################################
+
     # ############################################ other usefull functions #############################################
     def randomize(self):
         """Generate a random cube. The probability is the same for all possible states."""
