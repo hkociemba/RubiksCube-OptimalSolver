@@ -39,4 +39,3 @@ N_CORNERS_CLASS = 2768  # number of equivalence classes concerning symmetry grou
 N_SYM = 48  # number of cube symmetries of full group Oh
 N_SYM_D4h = 16  # Number of symmetries of subgroup D4h
 ########################################################################################################################
-

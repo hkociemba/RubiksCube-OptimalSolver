@@ -9,8 +9,8 @@ import optimal.cubie as cb
 from os import path
 import array as ar
 
-flipslice_twist_depth3 = None  # global variables, initialized during pruning table creation
-flipslicesorted_twist_depth3 = None
+flipslice_twist_depth3 = ar.array  # global variables, initialized during pruning table creation
+flipslicesorted_twist_depth3 = ar.array
 corner_depth = None
 
 # ####################### functions to extract or set values in the pruning tables #####################################
@@ -29,6 +29,7 @@ def set_flipslice_twist_depth3(ix, value):
     flipslice_twist_depth3[base] &= ~(3 << shift) & 0xffffffff
     flipslice_twist_depth3[base] |= value << shift
 
+
 def get_flipslicesorted_twist_depth3(ix):
     """get_fsst_depth3(ix) is *exactly* the number of moves % 3 to solve phase1x24 of a cube with index ix"""
     y = flipslicesorted_twist_depth3[ix // 16]
@@ -41,129 +42,7 @@ def set_flipslicesorted_twist_depth3(ix, value):
     base = ix >> 4
     flipslicesorted_twist_depth3[base] &= ~(3 << shift) & 0xffffffff
     flipslicesorted_twist_depth3[base] |= value << shift
-
-
-
 ########################################################################################################################
-
-
-def create_phase1_prun_table():
-    """Create/load the flipslice_twist_depth3 pruning table for phase 1."""
-    global flipslice_twist_depth3
-    total = defs.N_FLIPSLICE_CLASS * defs.N_TWIST
-    fname = "phase1_prun"
-    if not path.isfile(fname):
-        print("creating " + fname + " table...")
-        print('This may take 20 minutes or even longer, depending on the hardware.')
-
-        flipslice_twist_depth3 = ar.array('L', [0xffffffff] * (total // 16 + 1))
-        # #################### create table with the symmetries of the flipslice classes ###############################
-        cc = cb.CubieCube()
-        fs_sym = ar.array('H', [0] * defs.N_FLIPSLICE_CLASS)
-        for i in range(defs.N_FLIPSLICE_CLASS):
-            if (i + 1) % 1000 == 0:
-                print('.', end='', flush=True)
-            rep = sy.flipslice_rep[i]
-            cc.set_slice(rep // defs.N_FLIP)
-            cc.set_flip(rep % defs.N_FLIP)
-
-            for s in range(defs.N_SYM_D4h):
-                ss = cb.CubieCube(sy.symCube[s].cp, sy.symCube[s].co, sy.symCube[s].ep,
-                                  sy.symCube[s].eo)  # copy cube
-                ss.edge_multiply(cc)  # s*cc
-                ss.edge_multiply(sy.symCube[sy.inv_idx[s]])  # s*cc*s^-1
-                if ss.get_slice() == rep // defs.N_FLIP and ss.get_flip() == rep % defs.N_FLIP:
-                    fs_sym[i] |= 1 << s
-        print()
-        # ##################################################################################################################
-
-        fs_classidx = 0  # value for solved phase 1
-        twist = 0
-        set_flipslice_twist_depth3(defs.N_TWIST * fs_classidx + twist, 0)
-        done = 1
-        depth = 0
-        backsearch = False
-        print('depth:', depth, 'done: ' + str(done) + '/' + str(total))
-        while done != total:
-            depth3 = depth % 3
-            if depth == 9:
-                # backwards search is faster for depth >= 9
-                print('flipping to backwards search...')
-                backsearch = True
-            idx = 0
-            for fs_classidx in range(defs.N_FLIPSLICE_CLASS):
-                if (fs_classidx + 1) % 200  == 0:
-                    print('.', end='', flush=True)
-                if (fs_classidx + 1) % 16000  == 0:
-                    print('')
-
-                twist = 0
-                while twist < defs.N_TWIST:
-
-                    # ########## if table entries are not populated, this is very fast: ################################
-                    if not backsearch and idx % 16 == 0 and flipslice_twist_depth3[idx // 16] == 0xffffffff \
-                            and twist < defs.N_TWIST - 16:
-                        twist += 16
-                        idx += 16
-                        continue
-                    ####################################################################################################
-
-                    if backsearch:
-                        match = (get_flipslice_twist_depth3(idx) == 3)
-                    else:
-                        match = (get_flipslice_twist_depth3(idx) == depth3)
-
-                    if match:
-                        flipslice = sy.flipslice_rep[fs_classidx]
-                        flip = flipslice % 2048  # defs.N_FLIP = 2048
-                        slice_ = flipslice >> 11  # // defs.N_FLIP
-                        for m in enums.Move:
-                            twist1 = mv.twist_move[18 * twist + m]  # defs.N_MOVE = 18
-                            flip1 = mv.flip_move[18 * flip + m]
-                            slice1 = mv.slice_sorted_move[432 * slice_ + m] // 24  # defs.N_PERM_4 = 24, 18*24 = 432
-                            flipslice1 = (slice1 << 11) + flip1
-                            fs1_classidx = sy.flipslice_classidx[flipslice1]
-                            fs1_sym = sy.flipslice_sym[flipslice1]
-                            twist1 = sy.twist_conj[(twist1 << 4) + fs1_sym]
-                            idx1 = 2187 * fs1_classidx + twist1  # defs.N_TWIST = 2187
-                            if not backsearch:
-                                if get_flipslice_twist_depth3(idx1) == 3:  # entry not yet filled
-                                    set_flipslice_twist_depth3(idx1, (depth + 1) % 3)
-                                    done += 1
-                                    # ####symmetric position has eventually more than one representation ###############
-                                    sym = fs_sym[fs1_classidx]
-                                    if sym != 1:
-                                        for j in range(1, 16):
-                                            sym >>= 1
-                                            if sym % 2 == 1:
-                                                twist2 = sy.twist_conj[(twist1 << 4) + j]
-                                                # fs2_classidx = fs1_classidx due to symmetry
-                                                idx2 = 2187 * fs1_classidx + twist2
-                                                if get_flipslice_twist_depth3(idx2) == 3:
-                                                    set_flipslice_twist_depth3(idx2, (depth + 1) % 3)
-                                                    done += 1
-                                    ####################################################################################
-
-                            else:  # backwards search
-                                if get_flipslice_twist_depth3(idx1) == depth3:
-                                    set_flipslice_twist_depth3(idx, (depth + 1) % 3)
-                                    done += 1
-                                    break
-                    twist += 1
-                    idx += 1  # idx = defs.N_TWIST * fs_class + twist
-
-            depth += 1
-            print()
-            print('depth:', depth, 'done: ' + str(done) + '/' + str(total))
-
-        fh = open(fname, "wb")
-        flipslice_twist_depth3.tofile(fh)
-    else:
-        print("loading " + fname + " table...")
-        fh = open(fname, "rb")
-        flipslice_twist_depth3 = ar.array('L')
-        flipslice_twist_depth3.fromfile(fh, total // 16 + 1)
-    fh.close()
 
 
 def create_phase1x24_prun_table():
@@ -213,7 +92,7 @@ def create_phase1x24_prun_table():
 
             idx = 0
             for fs_classidx in range(defs.N_FLIPSLICESORTED_CLASS):
-                if (fs_classidx + 1) % 20000  == 0:
+                if (fs_classidx + 1) % 20000 == 0:
                     print('.', end='', flush=True)
                 if (fs_classidx + 1) % 1600000 == 0:
                     print('')
@@ -254,10 +133,10 @@ def create_phase1x24_prun_table():
                                     # ####symmetric position has eventually more than one representation ###############
                                     sym = fs_sym[fs1_classidx]
                                     if sym != 1:
-                                        for j in range(1, 16):
+                                        for k in range(1, 16):
                                             sym >>= 1
                                             if sym % 2 == 1:
-                                                twist2 = sy.twist_conj[(twist1 << 4) + j]
+                                                twist2 = sy.twist_conj[(twist1 << 4) + k]
                                                 # fs2_classidx = fs1_classidx due to symmetry
                                                 idx2 = 2187 * fs1_classidx + twist2
                                                 if get_flipslicesorted_twist_depth3(idx2) == 3:
@@ -294,7 +173,7 @@ def create_cornerprun_table():
     global corner_depth
     if not path.isfile(fname):
         print("creating " + fname + " table...")
-        corner_depth = ar.array('b', [-1] * (defs.N_CORNERS))
+        corner_depth = ar.array('b', [-1] * defs.N_CORNERS)
         corners = 0  # value for solved corners
         corner_depth[corners] = 0
         done = 1
@@ -321,12 +200,11 @@ def create_cornerprun_table():
         corner_depth.fromfile(fh, defs.N_CORNERS)
     fh.close()
 
-
-
 # # array distance computes the new distance from the old_distance i and the new_distance_mod3 j. ######################
 # # We need this array because the pruning tables only store the distances mod 3. ######################################
 # # The advantage of storing distances mod 3 is that we need only 2 bit per entry to store values 0, 1 or 2 and still
 # # have value 3 left to indicate a still empty entry in the tables during table creation.
+
 
 distance = ar.array('b', [0 for i in range(60)])
 for i in range(20):

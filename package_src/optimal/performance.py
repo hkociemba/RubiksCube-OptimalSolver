@@ -26,4 +26,3 @@ def test(n):
     avr /= n
     print('average ' + '%.2f' % avr + ' moves', dict(zip(range(31), cnt)))
     print('total time for ' + str(n) + ' cubes: ' + str(round(time.monotonic() - start_time, 2)) + ' s')
-

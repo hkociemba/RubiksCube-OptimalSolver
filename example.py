@@ -6,7 +6,7 @@ cc = CubieCube()
 cc.randomize()
 fc = cc.to_facelet_cube()
 fl = fc.to_string()  # fl holds the cube definition string. For the format see enums.py
-#print('Solve random cube with cube definition string ' + fl)
+# print('Solve random cube with cube definition string ' + fl)
 # print(sv.solve(fl))
 
 

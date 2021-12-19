@@ -11,11 +11,12 @@ import time
 
 solfound = False  # global variable, True if solution is found
 nodecount = 0  # number of nodes generated on certain level
+sofar = []
 
 
-def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sorted, \
+def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sorted,
            RL_slice_sorted, FB_slice_sorted, corners, UD_dist, RL_dist, FB_dist, togo):
-    global solfound, nodecount, cputime
+    global solfound, nodecount
 
     if solfound:
         return
@@ -106,7 +107,7 @@ def solve(cubestring):
      :param cubestring: The format of the string is given in the Facelet class defined in the file enums.py
     """
     global sofar  # the moves of the potential solution maneuver
-    global solfound, nodecount, cputime
+    global solfound, nodecount
     fc = face.FaceCube()
     s = fc.from_string(cubestring)  # initialize fc
     if s != cubie.CUBE_OK:
@@ -130,8 +131,8 @@ def solve(cubestring):
         totnodes += nodecount
         nodecount = 0
         # cputime = 0
-        search(coc.UD_flip, coc.RL_flip, coc.FB_flip, coc.UD_twist, coc.RL_twist, coc.FB_twist, \
-               coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted, coc.corners, \
+        search(coc.UD_flip, coc.RL_flip, coc.FB_flip, coc.UD_twist, coc.RL_twist, coc.FB_twist,
+               coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted, coc.corners,
                coc.UD_phasex24_depth, coc.RL_phasex24_depth, coc.FB_phasex24_depth, togo)
         print('depth ' + str(togo) + ' done in ' + str(round(time.monotonic() - s_time, 2)) + ' s')
         if togo > 12:
@@ -152,9 +153,10 @@ def solve(cubestring):
 def solveto(cubestring, goalstring):
     """Solve a cube defined by its cube definition string.
      :param cubestring: The format of the string is given in the Facelet class defined in the file enums.py
+     :param goalstring: The definition string of the goalcube
     """
     global sofar  # the moves of the potential solution maneuver
-    global solfound, nodecount, cputime
+    global solfound, nodecount
 
     fc0 = face.FaceCube()
     fcg = face.FaceCube()

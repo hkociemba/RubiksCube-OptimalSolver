@@ -56,7 +56,6 @@ class FaceCube:
         else:
             return 'Error: Cube definition string ' + s + ' does not contain exactly 9 facelets of each color.'
 
-
     def to_string(self):
         """Give a string representation of the facelet cube."""
         s = ''
@@ -94,6 +93,7 @@ class FaceCube:
             for ori in range(3):
                 if self.f[fac[ori]] == Color.U or self.f[fac[ori]] == Color.D:
                     break
+            # noinspection PyUnboundLocalVariable
             col1 = self.f[fac[(ori + 1) % 3]]  # colors which identify the corner at position i
             col2 = self.f[fac[(ori + 2) % 3]]
             for j in Corner:
