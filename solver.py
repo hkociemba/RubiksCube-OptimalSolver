@@ -134,16 +134,14 @@ def solve(cubestring):
         search(coc.UD_flip, coc.RL_flip, coc.FB_flip, coc.UD_twist, coc.RL_twist, coc.FB_twist,
                coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted, coc.corners,
                coc.UD_phasex24_depth, coc.RL_phasex24_depth, coc.FB_phasex24_depth, togo)
-        print('depth ' + str(togo) + ' done in ' + str(round(time.monotonic() - s_time, 2)) + ' s')
         if togo > 12:
-            print('nodes generated in depth ' + str(togo) + ': ' + str(nodecount) + ', about ' + str(
-                round(nodecount / (time.monotonic() - s_time + 0.0001))) + ' nodes/s')
-            # print(cputime)
+            t = time.monotonic() - s_time + 0.0001
+            print('depth ' + str(togo) + ' done in ' + str(round(t, 2)) + ' s, ' + str(
+                nodecount) + ' nodes generated, ' + 'about ' + str(round(nodecount / t)) + ' nodes/s')
         togo += 1
-    print('total time: ' + str(round(time.monotonic() - start_time, 2)) + ' s')
-    print('total number of nodes generated: ' + str(totnodes + nodecount))
-    print('average node generation: ' + str(
-        round((totnodes + nodecount) / (time.monotonic() - start_time + 0.0001), 2)) + ' nodes/s')
+    print('total time: ' + str(
+        round(time.monotonic() - start_time, 2)) + ' s, ' + 'nodes generated: ' + str(
+        totnodes + nodecount))
     s = ''
     for m in sofar:
         s += m.name + ' '
@@ -194,15 +192,14 @@ def solveto(cubestring, goalstring):
         search(coc.UD_flip, coc.RL_flip, coc.FB_flip, coc.UD_twist, coc.RL_twist, coc.FB_twist,
                coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted, coc.corners,
                coc.UD_phasex24_depth, coc.RL_phasex24_depth, coc.FB_phasex24_depth, togo)
-        print('depth ' + str(togo) + ' done in ' + str(round(time.monotonic() - s_time, 2)) + ' s')
         if togo > 12:
-            print('nodes generated in depth ' + str(togo) + ': ' + str(nodecount) + ', about ' + str(
-                round(nodecount / (time.monotonic() - s_time + 0.0001))) + ' nodes/s')
+            t = time.monotonic() - s_time + 0.0001
+            print('depth ' + str(togo) + ' done in ' + str(round(t, 2)) + ' s, ' + str(
+                nodecount) + ' nodes generated, ' + 'about ' + str(round(nodecount / t)) + ' nodes/s')
         togo += 1
-    print('total time: ' + str(round(time.monotonic() - start_time, 2)) + ' s')
-    print('total number of nodes generated: ' + str(totnodes + nodecount))
-    print('average node generation: ' + str(
-        round((totnodes + nodecount) / (time.monotonic() - start_time + 0.0001), 2)) + ' nodes/s')
+    print('total time: ' + str(
+        round(time.monotonic() - start_time, 2)) + ' s, ' + 'nodes generated: ' + str(
+        totnodes + nodecount))
     s = ''
     for m in sofar:
         s += m.name + ' '

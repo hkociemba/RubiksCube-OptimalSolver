@@ -26,7 +26,7 @@ Moreover, it is possible to apply this pruning table simultaneously in three dir
 the heuristics. 
 ## Speeding up Python
 It became clear that using Reid's approach with a pruning table size of 34 MB is not best suited for Python.
-Today's hardware with several GB of RAM allows the usage of a pruning table 24 times larger which can compensate the
+Today's hardware with several GB of RAM allows the usage of a 794 MB pruning table (24 times larger) which can compensate the
 relative slowness of the Python interpreter. We get a speedup by a factor of about 7 in this way.   
 
 This bigger pruning table belongs to a target subgroup where the four UD-slice edges are not only in their slice but
@@ -91,26 +91,115 @@ This will for example generate 10 random cubes and gives information about the s
 
 ## Performance results
 
-We solved 10 random cubes with CPython and with PyPy (pypy3), the latter including a Just-in-Time compiler which gives a
-speedup by a factor of more than 10. All computations were done on a Windows 10 machine with an AMD Ryzen 7 3700X 3.59 GHz.
+We solved 10 random cubes with PyPy (pypy3). All computations were done on a Windows 10 machine with an AMD Ryzen 7 3700X 3.59 GHz.
 
 #### Table creation time (to be performed only once)
-PyPy: 13 minutes
+PyPy: 13 minutes  
 CPython:  8 hours   
 
-#### Solving statistics
+#### Solving statistics for 10 random cubes using PyPy
+The optimal solving time was in a range between 37 s and 1167 s, the total time for the 10 cubes was 3841 s. The average
+optimal solving length was 17.80
 
-A full depth 17 search typically takes about 1/2 hour using CPython and less than 3 minutes with PyPy.   
-The number of nodes that have to be generated for a full depth 17 search has an average of 280,000,000.
-This is more than 400 times less than the 120,000,000,000 in Korf's approach who of course did not have 
-1 GB of RAM in 1997 but only about 100 MB.
-The average time to solve 10 random cubes (1x17 moves, 7x18 moves and 2x19 moves) with PyPy was about 20 min/cube
-and ranged from 36 s for the 17 move solution to 2447 s and 4389 s for the two 19 move solutions.   
-The program generated about 1.8 million nodes/s.
+1. FDDLURBFDRFRLRDFBRLDBRFFBBLURDBDLLFBUUDDLUFULFBRLBRUUU  
+depth 14 done in 0.19 s, 94551 nodes generated, about 505350 nodes/s  
+depth 15 done in 0.75 s, 1290873 nodes generated, about 1720935 nodes/s  
+depth 16 done in 7.06 s, 17831301 nodes generated, about 2524572 nodes/s  
+depth 17 done in 98.06 s, 245464971 nodes generated, about 2503158 nodes/s  
+depth 18 done in 231.27 s, 574900111 nodes generated, about 2485881 nodes/s  
+total time: 337.39 s, nodes generated: 839588899  
+R1 U2 L1 U2 L2 B2 R2 D3 L3 B2 U1 F3 B1 D1 R3 L1 F3 U1 (18f*)  
+
+
+2. FFDFUUBBDRBFLRRLUURDBFFUBBBURDBDFFDLULURLDDLLLRRUBDFLR   
+depth 14 done in 0.25 s, 146142 nodes generated, about 584334 nodes/s  
+depth 15 done in 0.99 s, 1928430 nodes generated, about 1957598 nodes/s  
+depth 16 done in 9.92 s, 25418349 nodes generated, about 2561791 nodes/s  
+depth 17 done in 130.17 s, 334597977 nodes generated, about 2570428 nodes/s  
+depth 18 done in 33.42 s, 88752397 nodes generated, about 2655580 nodes/s  
+total time: 174.86 s, nodes generated: 450855850  
+U1 R3 B3 R2 F3 R2 L3 D2 B1 D1 F2 L3 B3 D3 L1 F2 D3 L2 (18f*)  
+
+
+3. BLRBUDDLBUFULRUURBBDLDFBDLLLUFUDFRURRRLDLBFRFFFUBBRDFD
+depth 14 done in 0.11 s, 279489 nodes generated, about 2561769 nodes/s  
+depth 15 done in 1.25 s, 3311061 nodes generated, about 2648637 nodes/s  
+depth 16 done in 15.28 s, 39782112 nodes generated, about 2603184 nodes/s  
+depth 17 done in 186.5 s, 485952603 nodes generated, about 2605643 nodes/s  
+depth 18 done in 60.28 s, 150996678 nodes generated, about 2504876 nodes/s  
+total time: 263.44 s, nodes generated: 680347653  
+U1 D2 B1 L2 B3 L2 B2 R3 D3 F3 U3 R3 D1 L3 F3 L1 F3 B3 (18f*)  
+
+
+4. DULDULDDLFUBDRFBBRRRDDFBURLFUURDLRBUFLBLLFBBLDFRRBFFUU   
+depth 14 done in 0.05 s, 139470 nodes generated, about 3025380 nodes/s  
+depth 15 done in 0.8 s, 1853697 nodes generated, about 2325551 nodes/s  
+depth 16 done in 10.13 s, 24440712 nodes generated, about 2413874 nodes/s  
+depth 17 done in 25.59 s, 63001023 nodes generated, about 2461545 nodes/s  
+total time: 36.58 s, nodes generated: 89445969  
+R1 F1 R2 L2 U1 B1 D3 B2 L1 F3 U2 L3 F2 L1 D3 F2 U3 (17f*)  
+
+
+5. DBDBUFURUBLFBRLFFLFDRRFUBLDDDRBDURUUBDLDLFULRLRLUBFBRF   
+depth 14 done in 0.03 s, 93048 nodes generated, about 2991897 nodes/s  
+depth 15 done in 0.55 s, 1335570 nodes generated, about 2441181 nodes/s  
+depth 16 done in 7.5 s, 18770952 nodes generated, about 2502760 nodes/s  
+depth 17 done in 103.77 s, 260113815 nodes generated, about 2506756 nodes/s  
+depth 18 done in 1055.2 s, 2624360711 nodes generated, about 2487065 nodes/s  
+total time: 1167.05 s, nodes generated: 2904680714  
+L1 D1 L2 U2 F1 U1 D2 F2 U1 R1 F1 B1 R2 U3 R1 F1 U3 F3 (18f*)  
+
+
+6. RBBRURRDLDFLLRUUFDDLBFFFRDLUBFBDUFBFBDFRLDRUBULDLBULRU   
+depth 14 done in 0.03 s, 101376 nodes generated, about 3259678 nodes/s  
+depth 15 done in 0.55 s, 1374786 nodes generated, about 2512861 nodes/s  
+depth 16 done in 7.39 s, 19053294 nodes generated, about 2577870 nodes/s  
+depth 17 done in 101.86 s, 262000026 nodes generated, about 2572181 nodes/s  
+depth 18 done in 34.55 s, 90387572 nodes generated, about 2616358 nodes/s  
+total time: 144.38 s, nodes generated: 372925295  
+U1 F2 U3 D1 F2 L1 B3 D2 F1 R1 D3 L2 D1 F2 D1 B3 U3 F3 (18f*)  
+
+
+7. UDLRURDBBDFUBRLFDRBLRBFUFLURULRDBFDUBDLFLRLUDBFRFBUFLD
+depth 14 done in 0.05 s, 108084 nodes generated, about 2294777 nodes/s  
+depth 15 done in 0.58 s, 1491219 nodes generated, about 2579517 nodes/s  
+depth 16 done in 8.09 s, 20304783 nodes generated, about 2508591 nodes/s  
+depth 17 done in 108.34 s, 276363516 nodes generated, about 2550818 nodes/s  
+depth 18 done in 53.97 s, 137953480 nodes generated, about 2556157 nodes/s  
+total time: 171.05 s, nodes generated: 436229374  
+U1 D2 R3 L3 B2 R2 D1 L1 D1 F3 U2 D2 R1 B1 U1 D1 F2 D2 (18f*)  
+
+8. BRFRULFUBUFLLRBBRRULLLFBBDDDFLBDULRFRDRULDFURDFUDBFDBU
+depth 14 done in 0.03 s, 72282 nodes generated, about 2324180 nodes/s
+depth 15 done in 0.44 s, 1050312 nodes generated, about 2397425 nodes/s
+depth 16 done in 6.11 s, 15184191 nodes generated, about 2485504 nodes/s
+depth 17 done in 88.06 s, 217674717 nodes generated, about 2471804 nodes/s
+depth 18 done in 1050.7 s, 2611603965 nodes generated, about 2485577 nodes/s
+total time: 1145.34 s, nodes generated: 2845590837
+L3 B2 D1 B2 U1 L3 U1 L2 U1 R1 U2 B1 D1 L3 F2 R1 F3 R3 (18f*)
+
+
+9. FUBFUBBBDRLDFRFBDRURBBFUUDUFLRUDRFFURLLULDLRLLBDRBLFDD   
+depth 14 done in 0.05 s, 118125 nodes generated, about 2507962 nodes/s  
+depth 15 done in 0.63 s, 1561818 nodes generated, about 2498509 nodes/s  
+depth 16 done in 8.23 s, 20984124 nodes generated, about 2548442 nodes/s  
+depth 17 done in 83.0 s, 211311256 nodes generated, about 2545916 nodes/s  
+total time: 91.91 s, nodes generated: 233985349  
+L1 B2 U1 D1 R1 F1 B1 D2 L3 U2 D1 F3 U2 F3 U1 R1 B2 (17f*)  
+
+
+10. BRLLUFLDRBUUURLDUFURDDFBLLFDFLLDRRFRRUFBLFFBBBBUDBDURD
+depth 14 done in 0.05 s, 109662 nodes generated, about 2328280 nodes/s  
+depth 15 done in 0.59 s, 1500297 nodes generated, about 2525327 nodes/s  
+depth 16 done in 8.08 s, 20394183 nodes generated, about 2524626 nodes/s  
+depth 17 done in 110.7 s, 275572329 nodes generated, about 2489292 nodes/s  
+depth 18 done in 189.89 s, 483624333 nodes generated, about 2546851 nodes/s  
+total time: 309.31 s, nodes generated: 781208901  
+U3 R2 B2 U2 B3 D3 L1 D1 L2 U2 D2 R3 U1 D1 R3 D1 B3 U1 (18f*)  
 
 #### Conclusion:
 Optimally solving Rubik's Cube with Python using the standard CPython interpreter is not recommended.
-With PyPy and the 794 MB table the computation for optimally solving a Rubik's cube in Python is done within 
+With PyPy and the 794 MB pruning table the computation for optimally solving a Rubik's cube in Python is done within 
 minutes up to a couple of hours.
 
 
