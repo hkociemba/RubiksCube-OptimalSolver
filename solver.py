@@ -37,7 +37,7 @@ def search(UD_flip, RL_flip, FB_flip, UD_twist, RL_twist, FB_twist, UD_slice_sor
             ############################################################################################################
             corners1 = mv.corners_move[N_MOVE * corners + m]
             co_dist1 = pr.corner_depth[corners1]
-            if co_dist1 >= togo:  # impossible to reach subgroup H in togo_phase1 - 1 moves
+            if co_dist1 >= togo:  # impossible to reach subgroup H in togo - 1 moves
                 continue
             ############################################################################################################
             UD_twist1 = mv.twist_move[N_MOVE * UD_twist + m]

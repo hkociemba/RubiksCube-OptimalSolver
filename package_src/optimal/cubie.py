@@ -216,7 +216,7 @@ class CubieCube:
 
     # ############################ functions to get and set coordinates ################################################
     def get_twist(self):
-        """Get the twist of the 8 corners. 0 <= twist < 2187 in phase 1, twist = 0 in phase 2."""
+        """Get the twist of the 8 corners. 0 <= twist < 2187"""
         ret = 0
         for i in range(Co.URF, Co.DRB):
             ret = 3 * ret + self.co[i]
@@ -231,7 +231,7 @@ class CubieCube:
         self.co[Co.DRB] = ((3 - twistparity % 3) % 3)
 
     def get_flip(self):
-        """Get the flip of the 12 edges. 0 <= flip < 2048 in phase 1, flip = 0 in phase 2."""
+        """Get the flip of the 12 edges. 0 <= flip < 2048"""
         ret = 0
         for i in range(Ed.UR, Ed.BR):
             ret = 2 * ret + self.eo[i]
@@ -247,7 +247,7 @@ class CubieCube:
 
     def get_slice(self):
         """Get the location of the UD-slice edges FR,FL,BL and BR ignoring their permutation.
-            0<= slice < 495 in phase 1, slice = 0 in phase 2."""
+            0<= slice < 495"""
         a = x = 0
         # Compute the index a < (12 choose 4)
         for j in range(Ed.BR, Ed.UR - 1, -1):
@@ -278,7 +278,7 @@ class CubieCube:
 
     def get_slice_sorted(self):
         """Get the permutation and location of the UD-slice edges FR,FL,BL and BR.
-        0 <= slice_sorted < 11880 in phase 1, 0 <= slice_sorted < 24 in phase 2, slice_sorted = 0 for solved cube."""
+        0 <= slice_sorted < 11880"""
         a = x = 0
         edge4 = [0] * 4
         # First compute the index a < (12 choose 4) and the permutation array perm.
@@ -329,8 +329,7 @@ class CubieCube:
 
     def get_corners(self):
         """Get the permutation of the 8 corners.
-            0 <= corners < 40320 defined but unused in phase 1, 0 <= corners < 40320 in phase 2,
-            corners = 0 for solved cube"""
+            0 <= corners < 40320"""
         perm = list(self.cp)  # duplicate cp
         b = 0
         for j in range(Co.DRB, Co.URF, -1):

@@ -10,7 +10,7 @@ a = cb.CubieCube()
 # ######################################### Move table for the twists of the corners. ##################################
 
 # The twist coordinate describes the 3^7 = 2187 possible orientations of the 8 corners
-# 0 <= twist < 2187 in phase 1, twist = 0 in phase 2
+# 0 <= twist < 2187
 fname = "move_twist"
 if not path.isfile(fname):
     print("creating " + fname + " table...")
@@ -35,7 +35,7 @@ fh.close()
 # ####################################  Move table for the flip of the edges. ##########################################
 
 # The flip coordinate describes the 2^11 = 2048 possible orientations of the 12 edges
-# 0 <= flip < 2048 in phase 1, flip = 0 in phase 2
+# 0 <= flip < 2048
 fname = "move_flip"
 if not path.isfile(fname):
     print("creating " + fname + " table...")
@@ -60,9 +60,7 @@ fh.close()
 # ###################### Move table for the four UD-slice edges FR, FL, Bl and BR. #####################################
 
 # The slice_sorted coordinate describes the 12!/8! = 11880 possible positions of the FR, FL, BL and BR edges.
-# Though for phase 1 only the "unsorted" slice coordinate with Binomial(12,4) = 495 positions is relevant, using the
-# slice_sorted coordinate gives us the permutation of the FR, FL, BL and BR edges at the beginning of phase 2 for free.
-# 0 <= slice_sorted < 11880 in phase 1, 0 <= slice_sorted < 24 in phase 2, slice_sorted = 0 for solved cube
+# 0 <= slice_sorted < 11880
 fname = "move_slice_sorted"
 if not path.isfile(fname):
     print("creating " + fname + " table...")
@@ -90,7 +88,7 @@ fh.close()
 # ########################################## Move table for the corners. ###############################################
 
 # The corners coordinate describes the 8! = 40320 permutations of the corners.
-# 0 <= corners < 40320 defined but unused in phase 1, 0 <= corners < 40320 in phase 2, corners = 0 for solved cube
+# 0 <= corners < 40320
 fname = "move_corners"
 if not path.isfile(fname):
     print("creating " + fname + " table...")

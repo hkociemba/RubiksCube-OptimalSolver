@@ -86,7 +86,7 @@ for s in range(N_SYM):
                 conj_move[N_MOVE * s + m] = m2
 ########################################################################################################################
 
-# ###### Generate the phase 1 table for the conjugation of the twist t by a symmetry s. twist_conj[t, s] = s*t*s^-1 ####
+# ###### Generate the table for the conjugation of the twist t by a symmetry s. twist_conj[t, s] = s*t*s^-1 ####
 fname = "conj_twist"
 if not path.isfile(fname):
     print('On the first run, several tables will be created. This may take 8 hours using CPython '

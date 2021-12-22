@@ -1,5 +1,5 @@
 # ##################### The pruning tables cut the search tree during the search. ######################################
-# ############ The pruning values are stored modulo 3 for phase 1 table which saves a lot of memory. ###################
+# ############ The pruning values are stored modulo 3 which saves a lot of memory. #####################################
 
 import optimal.defs as defs
 import optimal.enums as enums
@@ -9,25 +9,10 @@ import optimal.cubie as cb
 from os import path
 import array as ar
 
-flipslice_twist_depth3 = ar.array  # global variables, initialized during pruning table creation
-flipslicesorted_twist_depth3 = ar.array
+flipslicesorted_twist_depth3 = ar.array   # global variables, initialized during pruning table creation
 corner_depth = None
 
 # ####################### functions to extract or set values in the pruning tables #####################################
-
-
-def get_flipslice_twist_depth3(ix):
-    """get_fst_depth3(ix) is *exactly* the number of moves % 3 to solve phase 1 of a cube with index ix"""
-    y = flipslice_twist_depth3[ix // 16]
-    y >>= (ix % 16) * 2
-    return y & 3
-
-
-def set_flipslice_twist_depth3(ix, value):
-    shift = (ix % 16) * 2
-    base = ix >> 4
-    flipslice_twist_depth3[base] &= ~(3 << shift) & 0xffffffff
-    flipslice_twist_depth3[base] |= value << shift
 
 
 def get_flipslicesorted_twist_depth3(ix):
@@ -46,7 +31,7 @@ def set_flipslicesorted_twist_depth3(ix, value):
 
 
 def create_phase1x24_prun_table():
-    """Create/load the flipslicesorted_twist_depth3 pruning table, 24x the phase1 table."""
+    """Create/load the flipslicesorted_twist_depth3 pruning table, 24x the phase1 table of the two-phase alg."""
     global flipslicesorted_twist_depth3
     total = defs.N_FLIPSLICESORTED_CLASS * defs.N_TWIST
     fname = "phase1x24_prun"
@@ -74,7 +59,7 @@ def create_phase1x24_prun_table():
                 if ss.get_slice_sorted() == rep // defs.N_FLIP and ss.get_flip() == rep % defs.N_FLIP:
                     fs_sym[i] |= 1 << s
         print()
-        # ##################################################################################################################
+        # ##############################################################################################################
 
         fs_classidx = 0  # value for solved phase1x24
         twist = 0

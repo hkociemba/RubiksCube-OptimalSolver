@@ -46,7 +46,6 @@ class CoordCube:
 
     def __init__(self, cc: cb.CubieCube = None):  # init CoordCube from CubieCube
         if cc is None:  # ID-Cube
-            # The phase 1 slice coordinate is given by slice_sorted // 24
 
             self.corners = SOLVED  # corner permutation.
 
