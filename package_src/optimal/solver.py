@@ -134,7 +134,7 @@ def solve(cubestring):
         search(coc.UD_flip, coc.RL_flip, coc.FB_flip, coc.UD_twist, coc.RL_twist, coc.FB_twist,
                coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted, coc.corners,
                coc.UD_phasex24_depth, coc.RL_phasex24_depth, coc.FB_phasex24_depth, togo)
-        if togo > 12:
+        if togo > 13:
             t = time.monotonic() - s_time + 0.0001
             print('depth ' + str(togo) + ' done in ' + str(round(t, 2)) + ' s, ' + str(
                 nodecount) + ' nodes generated, ' + 'about ' + str(round(nodecount / t)) + ' nodes/s')
@@ -192,7 +192,7 @@ def solveto(cubestring, goalstring):
         search(coc.UD_flip, coc.RL_flip, coc.FB_flip, coc.UD_twist, coc.RL_twist, coc.FB_twist,
                coc.UD_slice_sorted, coc.RL_slice_sorted, coc.FB_slice_sorted, coc.corners,
                coc.UD_phasex24_depth, coc.RL_phasex24_depth, coc.FB_phasex24_depth, togo)
-        if togo > 12:
+        if togo > 13:
             t = time.monotonic() - s_time + 0.0001
             print('depth ' + str(togo) + ' done in ' + str(round(t, 2)) + ' s, ' + str(
                 nodecount) + ' nodes generated, ' + 'about ' + str(round(nodecount / t)) + ' nodes/s')
