@@ -158,9 +158,9 @@ class CoordCube:
         self.FB_flip = mv.flip_move[N_MOVE * self.FB_flip + m]
         self.FB_slice_sorted = mv.slice_sorted_move[N_MOVE * self.FB_slice_sorted + m]
 
-        self.FB_flipslicesorted_clsidx = sy.flipslice_classidx[N_FLIP * self.FB_slice_sorted + self.FB_flip]
-        self.FB_flipslicesorted_sym = sy.flipslice_sym[N_FLIP * self.FB_slice_sorted + self.FB_flip]
-        self.FB_flipslicesorted_rep = sy.flipslice_rep[self.FB_flipslicesorted_clsidx]
+        self.FB_flipslicesorted_clsidx = sy.flipslicesorted_classidx[N_FLIP * self.FB_slice_sorted + self.FB_flip]
+        self.FB_flipslicesorted_sym = sy.flipslicesorted_sym[N_FLIP * self.FB_slice_sorted + self.FB_flip]
+        self.FB_flipslicesorted_rep = sy.flipslicesorted_rep[self.FB_flipslicesorted_clsidx]
 
         self.UD_phasex24_depth = self.get_phasex24_depth(0)
         self.RL_phasex24_depth = self.get_phasex24_depth(1)

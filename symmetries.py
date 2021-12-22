@@ -3,11 +3,9 @@
 from os import path
 import array as ar
 import cubie as cb
-from defs import N_TWIST, N_SYM, N_SYM_D4h, N_FLIP, N_SLICE, N_SLICE_SORTED, N_MOVE, \
-    N_FLIPSLICE_CLASS, N_FLIPSLICESORTED_CLASS
+from defs import N_TWIST, N_SYM, N_SYM_D4h, N_FLIP, N_SLICE_SORTED, N_MOVE, N_FLIPSLICESORTED_CLASS
 from enums import Corner as Co, Edge as Ed, Move as Mv, BS
 
-INVALID = 65535
 INVALID32 = 4294967295
 #  #################### Permutations and orientation changes of the basic symmetries ###################################
 
@@ -114,72 +112,6 @@ else:
 
 fh.close()
 # ######################################################################################################################
-
-# ############## Generate the tables to handle the symmetry reduced flip-slice coordinate ##############################
-fname1 = "fs_classidx"
-fname2 = "fs_sym"
-fname3 = "fs_rep"
-if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
-    print("creating " + "flipslice sym-tables...")
-    flipslice_classidx = ar.array('H', [INVALID] * (N_FLIP * N_SLICE))  # idx -> classidx
-    flipslice_sym = ar.array('B', [0] * (N_FLIP * N_SLICE))  # idx -> symmetry
-    flipslice_rep = ar.array('L', [0] * N_FLIPSLICE_CLASS)  # classidx -> idx of representant
-
-    classidx = 0
-    cc = cb.CubieCube()
-    for slc in range(N_SLICE):
-        cc.set_slice(slc)
-        for flip in range(N_FLIP):
-            cc.set_flip(flip)
-            idx = N_FLIP * slc + flip
-            if (idx + 1) % 4000 == 0:
-                print('.', end='', flush=True)
-            if (idx + 1) % 320000 == 0:
-                print('')
-
-            if flipslice_classidx[idx] == INVALID:
-                flipslice_classidx[idx] = classidx
-                flipslice_sym[idx] = 0
-                flipslice_rep[classidx] = idx
-            else:
-                continue
-            for s in range(N_SYM_D4h):  # conjugate representant by all 16 symmetries
-                ss = cb.CubieCube(symCube[inv_idx[s]].cp, symCube[inv_idx[s]].co, symCube[inv_idx[s]].ep,
-                                  symCube[inv_idx[s]].eo)  # copy cube
-                ss.edge_multiply(cc)
-                ss.edge_multiply(symCube[s])  # s^-1*cc*s
-                idx_new = N_FLIP * ss.get_slice() + ss.get_flip()
-                if flipslice_classidx[idx_new] == INVALID:
-                    flipslice_classidx[idx_new] = classidx
-                    flipslice_sym[idx_new] = s
-            classidx += 1
-    print('')
-    fh = open(fname1, 'wb')
-    flipslice_classidx.tofile(fh)
-    fh.close()
-    fh = open(fname2, 'wb')
-    flipslice_sym.tofile(fh)
-    fh.close()
-    fh = open(fname3, 'wb')
-    flipslice_rep.tofile(fh)
-    fh.close()
-
-else:
-    print("loading " + "flipslice sym-tables...")
-
-    fh = open(fname1, 'rb')
-    flipslice_classidx = ar.array('H')
-    flipslice_classidx.fromfile(fh, N_FLIP * N_SLICE)
-    fh.close()
-    fh = open(fname2, 'rb')
-    flipslice_sym = ar.array('B')
-    flipslice_sym.fromfile(fh, N_FLIP * N_SLICE)
-    fh.close()
-    fh = open(fname3, 'rb')
-    flipslice_rep = ar.array('L')
-    flipslice_rep.fromfile(fh, N_FLIPSLICE_CLASS)
-    fh.close()
-
 
 # ############## Generate the tables to handle the symmetry reduced flip-slicesorted coordinate ########################
 fname1 = "fs24_classidx"
