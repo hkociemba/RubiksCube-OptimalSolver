@@ -212,6 +212,19 @@ depth 20 done in 88.06 s, 234395758 nodes generated, about 2661680 nodes/s
 total time: 26426.64 s, nodes generated: 75047390029   
 U1 R1 U2 R1 F2 L1 U2 R1 F3 B3 R2 D1 R3 L1 U2 F2 D2 F1 R2 D1 (20f*)
 
+And here the optimal solve for the hardest position from https://www.cube20.org/ which takes about 3 hours:  
+
+RBFLURBFLBUUFRBBDDRUURFLRDDBFLLDRRBFFUUBLFFDDLUULBRLDD  
+depth 14 done in 0.08 s, 13425 nodes generated, about 171895 nodes/s  
+depth 15 done in 0.3 s, 277653 nodes generated, about 934544 nodes/s  
+depth 16 done in 2.17 s, 5247552 nodes generated, about 2415889 nodes/s  
+depth 17 done in 35.17 s, 91161960 nodes generated, about 2591883 nodes/s  
+depth 18 done in 596.05 s, 1481591235 nodes generated, about 2485695 nodes/s  
+depth 19 done in 9230.55 s, 23094251484 nodes generated, about 2501937 nodes/s  
+depth 20 done in 1846.67 s, 4750476338 nodes generated, about 2572453 nodes/s  
+total time: 11710.99 s, nodes generated: 29423019926  
+U1 R3 L3 F2 U1 B3 R2 D1 R2 U1 F2 U1 F1 L3 F2 B1 D3 R3 U2 F1 (20f*)
+
 #### Conclusion:
 Optimally solving Rubik's Cube with Python using the standard CPython interpreter is not recommended.
 With PyPy and the 794 MB pruning table the computation for optimally solving a Rubik's cube in Python is done within 
