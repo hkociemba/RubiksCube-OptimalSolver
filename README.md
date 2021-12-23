@@ -228,7 +228,7 @@ U1 R3 L3 F2 U1 B3 R2 D1 R2 U1 F2 U1 F1 L3 F2 B1 D3 R3 U2 F1 (20f*)
 #### Conclusion:
 Optimally solving Rubik's Cube with Python using the standard CPython interpreter is not recommended.
 With PyPy and the 794 MB pruning table the computation for optimally solving a Rubik's cube in Python is done within 
-minutes up to a couple of hours.
+minutes up to a couple of hours (for the rare and difficult 20 move positions) .
 
 
 
