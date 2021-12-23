@@ -1,12 +1,10 @@
 # ################ A simple graphical interface which communicates with the server #####################################
-import solver
+from optimal.solver import solve
 from tkinter import *
 import optimal.cubie as cubie
 
 
 # ################################## Some global variables and constants ###############################################
-import solver
-
 width = 60  # width of a facelet in pixels
 facelet_id = [[[0 for col in range(3)] for row in range(3)] for face in range(6)]
 colorpick_id = [0 for i in range(6)]
@@ -75,7 +73,7 @@ def solvex():
         show_text('Invalid facelet configuration.\nWrong or missing colors. ' + e.__doc__)
         return
     show_text(defstr + '\n')
-    show_text(solver.solve(defstr))
+    show_text(solve(defstr) + '\n')
 
 ########################################################################################################################
 

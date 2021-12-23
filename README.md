@@ -88,7 +88,15 @@ You can test the performance of the algorithm on your machine with something sim
 >>> pf.test(10)
 ```
 This will for example generate 10 random cubes and gives information about the solving process. 
+***
+A little GUI-program may help to define the cube definition string interactively and run the solver. It seems to work
+with PyPy (and we recommend using PyPy for performance reasons) without problems.
+```python
+>>> import optimal.client_gui
+```
 
+![](gui.jpg "")
+***
 ## Performance results
 
 We solved 10 random cubes with PyPy (pypy3). All computations were done on a Windows 10 machine with an AMD Ryzen 7 3700X 3.59 GHz.
@@ -187,6 +195,22 @@ depth 17 done in 110.7 s, 275572329 nodes generated, about 2489292 nodes/s
 depth 18 done in 189.89 s, 483624333 nodes generated, about 2546851 nodes/s  
 total time: 309.31 s, nodes generated: 781208901  
 U3 R2 B2 U2 B3 D3 L1 D1 L2 U2 D2 R3 U1 D1 R3 D1 B3 U1 (18f*)  
+
+And because you can bet that you never will see a random cube which needs 20 moves (the chance is in the order of 
+1/10^11) we add the solving information for the "superflip" where  all edges and corners are in position but all edges
+are flipped. This was the first position which was proved to need 20 moves. It takes about 7 hours to find the 20 move
+solution with our solver.
+
+superflip: UBULURUFURURFRBRDRFUFLFRFDFDFDLDRDBDLULBLFLDLBUBRBLBDB   
+depth 14 done in 0.24 s, 185949 nodes generated, about 790936 nodes/s   
+depth 15 done in 1.02 s, 2734515 nodes generated, about 2693838 nodes/s   
+depth 16 done in 10.95 s, 35007363 nodes generated, about 3196115 nodes/s   
+depth 17 done in 150.14 s, 442849923 nodes generated, about 2949558 nodes/s   
+depth 18 done in 1978.36 s, 5537992239 nodes generated, about 2799286 nodes/s   
+depth 19 done in 24197.75 s, 68794215435 nodes generated, about 2843000 nodes/s   
+depth 20 done in 88.06 s, 234395758 nodes generated, about 2661680 nodes/s   
+total time: 26426.64 s, nodes generated: 75047390029   
+U1 R1 U2 R1 F2 L1 U2 R1 F3 B3 R2 D1 R3 L1 U2 F2 D2 F1 R2 D1 (20f*)
 
 #### Conclusion:
 Optimally solving Rubik's Cube with Python using the standard CPython interpreter is not recommended.
