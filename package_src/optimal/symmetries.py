@@ -178,7 +178,7 @@ else:
     flipslicesorted_sym.fromfile(fh, N_FLIP * N_SLICE_SORTED)
     fh.close()
     fh = open(fname3, 'rb')
-    flipslicesorted_rep = ar.array(uint32
+    flipslicesorted_rep = ar.array(uint32)
     flipslicesorted_rep.fromfile(fh, N_FLIPSLICESORTED_CLASS)
     fh.close()
 
