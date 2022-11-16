@@ -6,6 +6,7 @@ import optimal.cubie as cb
 from optimal.defs import N_TWIST, N_SYM, N_SYM_D4h, N_FLIP, N_SLICE_SORTED, N_MOVE, N_FLIPSLICESORTED_CLASS
 from optimal.enums import Corner as Co, Edge as Ed, Move as Mv, BS
 
+uint32 = 'I' if ar.array('I').itemsize >= 4 else 'L'  # type codes differ between architectures
 INVALID32 = 4294967295
 #  #################### Permutations and orientation changes of the basic symmetries ###################################
 
@@ -121,9 +122,9 @@ fname3 = "fs24_rep"
 if not (path.isfile(fname1) and path.isfile(fname2) and path.isfile(fname3)):
     print("creating " + "flipslicesorted sym-tables...")
     print("This may take about 15 minutes.")
-    flipslicesorted_classidx = ar.array('L', [INVALID32] * (N_FLIP * N_SLICE_SORTED))  # idx -> classidx
+    flipslicesorted_classidx = ar.array(uint32, [INVALID32] * (N_FLIP * N_SLICE_SORTED))  # idx -> classidx
     flipslicesorted_sym = ar.array('B', [0] * (N_FLIP * N_SLICE_SORTED))  # idx -> symmetry
-    flipslicesorted_rep = ar.array('L', [0] * N_FLIPSLICESORTED_CLASS)  # classidx -> idx of representant ANPASSEN
+    flipslicesorted_rep = ar.array(uint32, [0] * N_FLIPSLICESORTED_CLASS)  # classidx -> idx of representant ANPASSEN
 
     classidx = 0
     cc = cb.CubieCube()
@@ -169,7 +170,7 @@ else:
     print("loading " + "flipslicesorted sym-tables...")
 
     fh = open(fname1, 'rb')
-    flipslicesorted_classidx = ar.array('L')
+    flipslicesorted_classidx = ar.array(uint32)
     flipslicesorted_classidx.fromfile(fh, N_FLIP * N_SLICE_SORTED)
     fh.close()
     fh = open(fname2, 'rb')
@@ -177,7 +178,7 @@ else:
     flipslicesorted_sym.fromfile(fh, N_FLIP * N_SLICE_SORTED)
     fh.close()
     fh = open(fname3, 'rb')
-    flipslicesorted_rep = ar.array('L')
+    flipslicesorted_rep = ar.array(uint32
     flipslicesorted_rep.fromfile(fh, N_FLIPSLICESORTED_CLASS)
     fh.close()
 

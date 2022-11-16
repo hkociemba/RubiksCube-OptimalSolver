@@ -9,6 +9,8 @@ import cubie as cb
 from os import path
 import array as ar
 
+uint32 = 'I' if ar.array('I').itemsize >= 4 else 'L'  # type codes differ between architectures
+
 flipslicesorted_twist_depth3 = ar.array  # global variables, initialized during pruning table creation
 corner_depth = None
 
@@ -40,10 +42,10 @@ def create_phase1x24_prun_table():
         print('This may take 8 hours or even longer, depending on the hardware and the Python version.')
         print('Using PyPy instead of CPython gives a table creation speedup by a factor of about 20.')
 
-        flipslicesorted_twist_depth3 = ar.array('L', [0xffffffff] * (total // 16 + 1))
+        flipslicesorted_twist_depth3 = ar.array(uint32, [0xffffffff] * (total // 16 + 1))
         # #################### create table with the symmetries of the flipslicesorted classes #########################
         cc = cb.CubieCube()
-        fs_sym = ar.array('L', [0] * defs.N_FLIPSLICESORTED_CLASS)
+        fs_sym = ar.array(uint32, [0] * defs.N_FLIPSLICESORTED_CLASS)
         for i in range(defs.N_FLIPSLICESORTED_CLASS):
             if (i + 1) % 24000 == 0:
                 print('.', end='', flush=True)
@@ -146,7 +148,7 @@ def create_phase1x24_prun_table():
     else:
         print("loading " + fname + " table...")
         fh = open(fname, "rb")
-        flipslicesorted_twist_depth3 = ar.array('L')
+        flipslicesorted_twist_depth3 = ar.array(uint32)
         flipslicesorted_twist_depth3.fromfile(fh, total // 16 + 1)
     fh.close()
 

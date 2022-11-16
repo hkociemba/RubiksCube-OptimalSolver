@@ -30,18 +30,22 @@ class CoordCube:
     then is symmetry-reduced by the 16 symmetries of D4h, which means in this case that you get 1523864 equivalence
     classes (roughly 24330240//16) and most equivalence classes contain 16 positions which are related by D4h symmetry:
     s^-1*pos1*s = pos2 for some symmetry s from D4h and pos1 and pos2 in this class.
-     For a flipslicesorted coordinate X then:
-     flipslicesorted_classidx[X] gives the index 0 <= clsidx < 1523864 of the equivalence class that contains the
-     flipslice coordinate X and:
-     flipslicesorted_sym[X] gives the symmetry 0 <= sym < 16 such that X = sym^-1*rep*sym, where rep is the representant
-     of the class given by clsidx.
-     We choose the representant to be the element with the smallest flipslicesorted coordinate in the equivalence class.
+    For a flipslicesorted coordinate 0 <= X < 24330240 then:
+    flipslicesorted_classidx[X] gives the index 0 <= clsidx < 1523864 of the equivalence class that contains the
+    flipslice coordinate X
+    flipslicesorted_rep[classidx] gives the flipslicesorted coordinate of the representant of the class with index
+    classidx
+    flipslicesorted_sym[X] gives the index  0 <= sym < 16 of the symmetry SYM such that
+    Cube(X) = SYM^-1*Cube(rep)*SYM, where rep is the flipslicesorted coordinate of the representant.
+    Cube(z) means a cube on the cubie level that has flipslicsorted corrdinate z.
 
-     The pruning table then has 1523864*3^7 entries and holds the information about the *shortest* distance of any
-     given position to some  position where flip = twist = slice_sorted = 0. The solved cube is one of these positions
-     so the distance to a solved cube is at least the table distance. The pruning table can be used for all three
-     orientations related by a 12O° rotation of the cube simultaneously. Only 2 bits are used per entry since the
-     distance is only stored modulo 3 which still keeps all information.
+    We choose the representant to be the element with the smallest flipslicesorted coordinate in the equivalence class.
+
+    The pruning table then has 1523864*3^7 entries and holds the information about the *shortest* distance of any
+    given position to some  position where flip = twist = slice_sorted = 0. The solved cube is one of these positions
+    so the distance to a solved cube is at least the table distance. The pruning table can be used for all three
+    orientations related by a 12O° rotation of the cube simultaneously. Only 2 bits are used per entry since the
+    distance is only stored modulo 3 which still keeps all information.
     """
 
     def __init__(self, cc: cb.CubieCube = None):  # init CoordCube from CubieCube
