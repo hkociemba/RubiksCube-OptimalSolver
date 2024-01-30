@@ -231,6 +231,9 @@ With PyPy and the 794 MB pruning table the computation for optimally solving a R
 minutes up to a couple of hours (for the rare and difficult 20 move positions) .
 
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=hkociemba/RubiksCube-OptimalSolver&type=Date)](https://star-history.com/#hkociemba/RubiksCube-OptimalSolver&Date)
 
  
  
