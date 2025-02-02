@@ -20,7 +20,7 @@ the program generated about 700,000 nodes/s. The number of nodes for a full dept
 were about 120,000,000,000 and the computation took 2 days.
 
 Michael Reid 1997 https://www.cflmath.com/Rubik/optimal_solver.html proposed a superior method. He used the
-pruning table for the first phase of the two-phase algorithm. Since the target group of phase 1 exhibits 16-fold 
+pruning table for the first phase of the two-phase algorithm (Kociemba's algorithm). Since the target group of phase 1 exhibits 16-fold 
 symmetry of the D4h point group the corresponding pruning table also can be compressed by a factor about 16. 
 Moreover, it is possible to apply this pruning table simultaneously in three directions which increases the quality of
 the heuristics. 
