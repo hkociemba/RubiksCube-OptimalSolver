@@ -1,4 +1,4 @@
-# ################### The SolverThread class solves implements the two phase algorithm #################################
+# ################### The SolverThread class solves implements the solving algorithm #################################
 import face
 from defs import N_MOVE, N_FLIP, N_TWIST
 import cubie
